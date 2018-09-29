@@ -23,15 +23,15 @@ appl::Highlight::Highlight() {
 	addResourceType("appl::Highlight");
 }
 
-void appl::Highlight::init(const etk::String& _xmlFilename, const etk::String& _colorFile) {
-	gale::Resource::init(_xmlFilename);
+void appl::Highlight::init(const etk::Uri& _uriXml, const etk::Uri& _uriColorFile) {
+	gale::Resource::init(_uriXml);
 	
 	// keep color propertiy file :
-	m_paintingProperties = appl::GlyphPainting::create(_colorFile);
+	m_paintingProperties = appl::GlyphPainting::create(_uriColorFile);
 	
 	exml::Document doc;
-	if (doc.load(_xmlFilename) == false) {
-		APPL_ERROR(" can not load file XML : " << _xmlFilename);
+	if (doc.load(_uriXml) == false) {
+		APPL_ERROR(" can not load file XML : " << _uriXml);
 		return;
 	}
 	exml::Element root = doc.nodes["EdnLang"];
@@ -123,8 +123,8 @@ appl::Highlight::~Highlight() {
 	m_listFiles.clear();
 }
 
-bool appl::Highlight::isCompatible(const etk::String& _name) {
-	etk::String extention = _name.extract(_name.rfind('.')+1);
+bool appl::Highlight::isCompatible(const etk::Path& _name) {
+	etk::String extention = _name.getExtention();
 	for (auto &it : m_listExtentions) {
 		APPL_WARNING("        check : " << it << "=?=" << extention);
 		etk::RegEx<etk::String> regex;
@@ -153,16 +153,14 @@ bool appl::Highlight::isCompatible(const etk::String& _name) {
 	return false;
 }
 
-bool appl::Highlight::fileNameCompatible(const etk::String& _fileName) {
-	etk::String extention;
-	etk::FSNode file(_fileName);
-	if (true == file.fileHasExtention() ) {
-		extention = "*.";
-		extention += file.fileGetExtention();
+bool appl::Highlight::fileNameCompatible(const etk::Path& _fileName) {
+	etk::String extention = _fileName.getExtention();
+	if (extention.isEmpty() == false ) {
+		extention = "*." + extention;
 	} else {
-		extention = file.getNameFile();
+		extention = _fileName.getFileName();
 	}
-	APPL_DEBUG(" try to find : in \"" << file << "\" extention:\"" << extention << "\" ");
+	APPL_DEBUG(" try to find : in \"" << _fileName << "\" extention:\"" << extention << "\" ");
 
 	for (auto &it : m_listExtentions) {
 		if (extention == it ) {

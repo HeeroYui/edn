@@ -4,7 +4,7 @@
  * @license GPL v3 (see license file)
  */
 #include <etk/types.hpp>
-#include <etk/os/FSNode.hpp>
+#include <etk/path/fileSystem.hpp>
 #include <appl/debug.hpp>
 #include <appl/global.hpp>
 #include <appl/BufferManager.hpp>
@@ -17,9 +17,7 @@ appl::BufferManager::BufferManager() :
   signalNewBuffer(this, "new-buffer", ""),
   signalSelectFile(this, "select-buffer", ""),
   signalTextSelectionChange(this, "text-selection-change", ""),
-  signalRemoveBuffer(this, "remove-buffer", ""),
-  signalSelectBuffer(this, "select-buffer-2", ""),
-  signalNewBuffer2(this, "new-buffer-2", "") {
+  signalRemoveBuffer(this, "remove-buffer", "") {
 	addObjectType("appl::BufferManager");
 }
 
@@ -37,17 +35,15 @@ ememory::SharedPtr<appl::Buffer> appl::BufferManager::createNewBuffer() {
 	tmp->setParent(ewol::Object::sharedFromThis());
 	m_list.pushBack(tmp);
 	APPL_INFO("Create a new Buffer");
-	signalNewBuffer.emit(tmp->getFileName());
-	signalNewBuffer2.emit(tmp);
+	signalNewBuffer.emit(tmp);
 	APPL_INFO("Create a new Buffer (done)");
 	APPL_INFO("select Buffer");
-	signalSelectFile.emit(tmp->getFileName());
-	signalSelectBuffer.emit(tmp);
+	signalSelectFile.emit(tmp);
 	APPL_INFO("select Buffer (done)");
 	return tmp;
 }
 
-ememory::SharedPtr<appl::Buffer> appl::BufferManager::get(const etk::String& _fileName, bool _createIfNeeded) {
+ememory::SharedPtr<appl::Buffer> appl::BufferManager::get(const etk::Path& _fileName, bool _createIfNeeded) {
 	APPL_INFO("get('" << _fileName << "'," << _createIfNeeded << ")");
 	for (auto &it : m_list) {
 		if (it == null) {
@@ -58,7 +54,7 @@ ememory::SharedPtr<appl::Buffer> appl::BufferManager::get(const etk::String& _fi
 		}
 	}
 	if (_createIfNeeded == true) {
-		if (etk::FSNodeGetType(_fileName) == etk::typeNode_folder) {
+		if (etk::path::isDirectory(_fileName) == true) {
 			APPL_WARNING("try open a folder : " << _fileName);
 			APPL_CRITICAL("plop");
 			return null;
@@ -72,8 +68,7 @@ ememory::SharedPtr<appl::Buffer> appl::BufferManager::get(const etk::String& _fi
 		tmp->loadFile(_fileName);
 		m_list.pushBack(tmp);
 		APPL_INFO("Creata a open Buffer");
-		signalNewBuffer.emit(tmp->getFileName());
-		signalNewBuffer2.emit(tmp);
+		signalNewBuffer.emit(tmp);
 		APPL_INFO("Creata a open Buffer (done)");
 		return tmp;
 	}
@@ -104,8 +99,7 @@ ememory::SharedPtr<appl::Buffer> appl::BufferManager::get(int32_t _id) {
 	return m_list.back();
 }
 
-bool appl::BufferManager::exist(const etk::String& _fileName) {
-	APPL_WARNING(" Check if buffer exist: '" << _fileName << "'");
+bool appl::BufferManager::exist(const etk::Path& _fileName) {
 	for (auto &it : m_list) {
 		if (it == null) {
 			continue;
@@ -120,23 +114,20 @@ bool appl::BufferManager::exist(const etk::String& _fileName) {
 	return false;
 }
 
-void appl::BufferManager::open(const etk::String& _fileName) {
-	etk::FSNode file(_fileName);
-	etk::String fileName = file.getName();
-	if (exist(fileName) == true) {
-		APPL_WARNING(" the element '" << fileName << "' already exist ... just reselect it ...");
-		signalSelectFile.emit(fileName);
-		signalSelectBuffer.emit(get(fileName));
-		propertySetOnWidgetNamed("appl-widget-display-name", "value", etk::FSNodeGetRealName(fileName));
+void appl::BufferManager::open(const etk::Path& _fileName) {
+	if (exist(_fileName) == true) {
+		APPL_WARNING(" the element '" << _fileName << "' already exist ... just reselect it ...");
+		signalSelectFile.emit(get(_fileName));
+		propertySetOnWidgetNamed("appl-widget-display-name", "value", _fileName.getString());
 		return;
 	}
-	if (get(fileName, true) == null) {
-		APPL_ERROR("Error get '" << fileName << "' ... ");
+	auto value = get(_fileName, true);
+	if (value == null) {
+		APPL_ERROR("Error get '" << _fileName << "' ... ");
 		return;
 	}
-	signalSelectFile.emit(fileName);
-	signalSelectBuffer.emit(get(fileName));
-	propertySetOnWidgetNamed("appl-widget-display-name", "value", etk::FSNodeGetRealName(fileName));
+	signalSelectFile.emit(value);
+	propertySetOnWidgetNamed("appl-widget-display-name", "value", _fileName.getString());
 }
 
 void appl::BufferManager::requestDestroyFromChild(const ememory::SharedPtr<Object>& _child) {
@@ -164,23 +155,20 @@ void appl::BufferManager::requestDestroyFromChild(const ememory::SharedPtr<Objec
 		if (    it != m_list.end()
 		     && *it != null) {
 			APPL_VERBOSE("Remove buffer select new one");
-			signalSelectFile.emit((*it)->getFileName());
-			signalSelectBuffer.emit(*it);
-			propertySetOnWidgetNamed("appl-widget-display-name", "value", etk::FSNodeGetRealName((*it)->getFileName()));
+			signalSelectFile.emit(*it);
+			propertySetOnWidgetNamed("appl-widget-display-name", "value", (*it)->getFileName().getString());
 			APPL_VERBOSE("Remove buffer select new one (done)");
 			return;
 		}
 		if (    m_list.size() != 0
 		     && m_list.back() != null) {
 			APPL_VERBOSE("Remove buffer select new one (last)");
-			signalSelectFile.emit(m_list.back()->getFileName());
-			signalSelectBuffer.emit(m_list.back());
-			propertySetOnWidgetNamed("appl-widget-display-name", "value", etk::FSNodeGetRealName(m_list.back()->getFileName()));
+			signalSelectFile.emit(m_list.back());
+			propertySetOnWidgetNamed("appl-widget-display-name", "value", m_list.back()->getFileName().getString());
 			APPL_VERBOSE("Remove buffer select new one (done)");
 			return;
 		}
-		signalSelectFile.emit("");
-		signalSelectBuffer.emit(null);
+		signalSelectFile.emit(null);
 		propertySetOnWidgetNamed("appl-widget-display-name", "value", "---");
 		m_bufferSelected = null;
 	}

@@ -16,13 +16,11 @@ namespace appl {
 	using BufferManagerWeak = ememory::WeakPtr<appl::BufferManager>;
 	// TODO: This is a service ...
 	class BufferManager : public ewol::Object {
-		public: // signals:
-			esignal::Signal<etk::String> signalNewBuffer;
-			esignal::Signal<etk::String> signalSelectFile;
+		public:
+			esignal::Signal<ememory::SharedPtr<appl::Buffer>> signalNewBuffer;
+			esignal::Signal<ememory::SharedPtr<appl::Buffer>> signalSelectFile;
 			esignal::Signal<> signalTextSelectionChange;
 			esignal::Signal<ememory::SharedPtr<appl::Buffer>> signalRemoveBuffer;
-			esignal::Signal<ememory::SharedPtr<appl::Buffer>> signalSelectBuffer;
-			esignal::Signal<ememory::SharedPtr<appl::Buffer>> signalNewBuffer2;
 		protected:
 			BufferManager();
 		public:
@@ -37,18 +35,18 @@ namespace appl {
 			 * @param[in] _createIfNeeded Create the buffer if not existed.
 			 * @return a pointer on the buffer
 			 */
-			ememory::SharedPtr<appl::Buffer> get(const etk::String& _fileName, bool _createIfNeeded=false);
+			ememory::SharedPtr<appl::Buffer> get(const etk::Path& _fileName, bool _createIfNeeded=false);
 			/**
 			 * @brief Load a specific file, event if it not existed:
 			 * @param[in] _fileName Name of the file to open or create.
 			 */
-			void open(const etk::String& _fileName);
+			void open(const etk::Path& _fileName);
 			/**
 			 * @brief Check if a buffer is already open.
 			 * @param[in] _fileName name of the file.
 			 * @return true if the buffer is already open.
 			 */
-			bool exist(const etk::String& _fileName);
+			bool exist(const etk::Path& _fileName);
 			/**
 			 * @brief Get count of all buffer availlable.
 			 * @return Number of buffer

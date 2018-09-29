@@ -331,14 +331,14 @@ void MainWindows::onCallbackMenuEvent(const etk::String& _value) {
 		APPL_TODO("Event from Menu : " << _value);
 	} else if (    _value == "menu:color:color/black/"
 	            || _value == "menu:color:color/white/") {
-		etk::theme::setName("COLOR", etk::String(_value, 11));
+		EWOL_TODO("etk::theme::setName(\"COLOR\", etk::String(_value, 11));");
 		EWOL_ERROR("Select Shape or Color : 'COLOR'='" << etk::String(_value, 11) << "'");
 		ewol::getContext().getResourcesManager().reLoadResources();
 		ewol::getContext().forceRedrawAll();
 	} else if (    _value == "menu:shape:shape/square/"
 	            || _value == "menu:shape:shape/round/") {
 		EWOL_ERROR("Select Shape or Color : 'GUI'='" << etk::String(_value, 11) << "'");
-		etk::theme::setName("GUI", etk::String(_value, 11));
+		EWOL_TODO("etk::theme::setName(\"GUI\", etk::String(_value, 11));");
 		ewol::getContext().getResourcesManager().reLoadResources();
 		ewol::getContext().forceRedrawAll();
 	} else if (_value == "menu:reloadShape") {
@@ -425,8 +425,7 @@ void MainWindows::displayOpen() {
 	// Get a ref on the buffer selected (if null, no buffer was selected ...)
 	ememory::SharedPtr<appl::Buffer> tmpBuffer = m_bufferManager->getBufferSelected();
 	if (tmpBuffer != null) {
-		etk::FSNode tmpFile = tmpBuffer->getFileName();
-		tmpWidget->propertyPath.set(tmpFile.getNameFolder());
+		tmpWidget->propertyPath.set(tmpBuffer->getFileName().getParent());
 	}
 	// apply widget pop-up ...
 	popUpWidgetPush(tmpWidget);
@@ -467,8 +466,8 @@ void MainWindows::displayProperty() {
 	#endif
 }
 
-void MainWindows::onCallbackselectNewFile(const etk::String& _value) {
-	APPL_INFO("onCallbackselectNewFile(" << _value << ")");
+void MainWindows::onCallbackselectNewFile(const ememory::SharedPtr<appl::Buffer>& _value) {
+	APPL_INFO("onCallbackselectNewFile( ... )");
 	if (m_bufferManager == null) {
 		APPL_ERROR("can not call unexistant buffer manager ... ");
 		return;
@@ -477,15 +476,15 @@ void MainWindows::onCallbackselectNewFile(const etk::String& _value) {
 	m_connectionModify.disconnect();
 	m_connectionSaveName.disconnect();
 	onCallbackTitleUpdate();
-	ememory::SharedPtr<appl::Buffer> tmpp = m_bufferManager->getBufferSelected();
-	if (tmpp != null) {
-		m_connectionSave = tmpp->signalIsSave.connect(this, &MainWindows::onCallbackTitleUpdate);
-		m_connectionModify = tmpp->signalIsModify.connect(this, &MainWindows::onCallbackTitleUpdate);
-		m_connectionSaveName = tmpp->signalChangeName.connect(this, &MainWindows::onCallbackTitleUpdate);
+	if (_value != null) {
+		ememory::SharedPtr<appl::Buffer> tmp = _value;
+		m_connectionSave = tmp->signalIsSave.connect(this, &MainWindows::onCallbackTitleUpdate);
+		m_connectionModify = tmp->signalIsModify.connect(this, &MainWindows::onCallbackTitleUpdate);
+		m_connectionSaveName = tmp->signalChangeName.connect(this, &MainWindows::onCallbackTitleUpdate);
 	}
 }
 
-void MainWindows::onCallbackPopUpFileSelected(const etk::String& _value) {
+void MainWindows::onCallbackPopUpFileSelected(const etk::Path& _value) {
 	APPL_INFO("onCallbackPopUpFileSelected(" << _value << ")");
 	APPL_DEBUG("Request opening the file : " << _value);
 	m_bufferManager->open(_value);
@@ -505,10 +504,9 @@ void MainWindows::onCallbackTitleUpdate() {
 			m_widgetLabelFileName->propertyValue.set("");
 		}
 	} else {
-		etk::String nameFileSystem = etk::FSNode(tmpp->getFileName()).getFileSystemName();
-		propertyTitle.set(etk::String("Edn : ") + (tmpp->isModify()==true?" *":"") + nameFileSystem);
+		propertyTitle.set(etk::String("Edn : ") + (tmpp->isModify()==true?" *":"") + tmpp->getFileName().getString());
 		if (m_widgetLabelFileName != null) {
-			m_widgetLabelFileName->propertyValue.set(nameFileSystem + (tmpp->isModify()==true?" *":""));
+			m_widgetLabelFileName->propertyValue.set(tmpp->getFileName().getString() + (tmpp->isModify()==true?" *":""));
 		}
 	}
 }
@@ -532,7 +530,7 @@ void MainWindows::closeNotSavedFile(const ememory::SharedPtr<appl::Buffer>& _buf
 		return;
 	}
 	tmpPopUp->propertyTitle.set("<bold>_T{Close un-saved file:}</bold>");
-	tmpPopUp->propertyComment.set("_T{The file named:} <i>\"" + _buffer->getFileName() + "\"</i> _T{is curently modify.}   <br/>_T{If you don't saves these modifications,<br/>they will be definitly lost...}");
+	tmpPopUp->propertyComment.set("_T{The file named:} <i>\"" + _buffer->getFileName().getString() + "\"</i> _T{is curently modify.}   <br/>_T{If you don't saves these modifications,<br/>they will be definitly lost...}");
 	ememory::SharedPtr<ewol::widget::Button> bt = null;
 	if (_buffer->hasFileName() == true) {
 		bt = tmpPopUp->addButton("_T{Save}", true);

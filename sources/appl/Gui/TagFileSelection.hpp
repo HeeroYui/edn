@@ -11,11 +11,12 @@
 namespace appl {
 	class TagFileSelection : public ewol::widget::PopUp {
 		public:
-			esignal::Signal<etk::String> signalSelect;
+			esignal::Signal<etk::Path, int32_t> signalSelect;
 			esignal::Signal<> signalCancel;
 		private:
 			ememory::SharedPtr<appl::TagFileList> m_listTag;
-			etk::String m_eventNamed;
+			etk::Path m_eventPath;
+			int32_t m_eventLine = -1;
 		public:
 			TagFileSelection();
 			void init();
@@ -24,15 +25,15 @@ namespace appl {
 			virtual ~TagFileSelection();
 			/**
 			 * @brief add a Ctags item on the curent list
-			 * @param[in] file Compleate file name
-			 * @param[in] jump line id
+			 * @param[in] _path Compleate file name
+			 * @param[in] _line Jump line id
 			 */
-			void addCtagsNewItem(etk::String file, int32_t line);
+			void addCtagsNewItem(etk::Path _path, int32_t _line);
 		public: // callback function
 			void onCallbackCtagsSelection();
 			void onCallbackCtagsCancel();
-			void onCallbackCtagsListValidate(const etk::String& _value);
-			void onCallbackCtagsListSelect(const etk::String& _value);
+			void onCallbackCtagsListValidate(const etk::Path& _path, const int32_t& _line);
+			void onCallbackCtagsListSelect(const etk::Path& _path, const int32_t& _line);
 			void onCallbackCtagsListUnSelect();
 	};
 }

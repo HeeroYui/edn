@@ -62,9 +62,8 @@ void appl::WorkerSaveFile::init() {
 	}
 	m_chooser->propertyLabelTitle.set("_T{Save files As...}");
 	m_chooser->propertyLabelValidate.set("_T{Save}");
-	etk::FSNode tmpName(*propertyBufferName);
-	m_chooser->propertyPath.set(tmpName.getNameFolder());
-	m_chooser->propertyFile.set(tmpName.getNameFile());
+	m_chooser->propertyPath.set(propertyBufferName->getParent());
+	m_chooser->propertyFile.set(propertyBufferName->getFileName());
 	ememory::SharedPtr<ewol::widget::Windows> tmpWindows = ewol::getContext().getWindows();
 	if (tmpWindows == null) {
 		APPL_ERROR("Error to get the windows.");
@@ -85,13 +84,13 @@ void appl::WorkerSaveFile::onCallbackCancel() {
 	destroy();
 }
 
-void appl::WorkerSaveFile::onCallbackSaveAsValidate(const etk::String& _value) {
+void appl::WorkerSaveFile::onCallbackSaveAsValidate(const etk::Path& _value) {
 	if (m_bufferManager == null) {
 		// nothing to do in this case ==> can do nothing ...
 		destroy();
 		return;
 	}
-	if (_value == "") {
+	if (_value.isEmpty() == true) {
 		APPL_ERROR(" might be an error of the File chooser system...");
 		destroy();
 		return;
@@ -109,7 +108,7 @@ void appl::WorkerSaveFile::onCallbackSaveAsValidate(const etk::String& _value) {
 	}
 	tmpBuffer->setFileName(_value);
 	if (tmpBuffer->storeFile() == false) {
-		ewol::tools::message::displayWarning("We can not save the file : <br/><i>" + tmpBuffer->getFileName() + "</i>");
+		ewol::tools::message::displayWarning("We can not save the file : <br/><i>" + tmpBuffer->getFileName().getString() + "</i>");
 	} else {
 		signalSaveDone.emit();
 	}

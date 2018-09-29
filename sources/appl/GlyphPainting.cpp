@@ -7,7 +7,6 @@
 #include <appl/global.hpp>
 #include <appl/GlyphPainting.hpp>
 #include <ejson/ejson.hpp>
-#include <etk/os/FSNode.hpp>
 #include <gale/resource/Manager.hpp>
 
 
@@ -15,9 +14,9 @@ appl::GlyphPainting::GlyphPainting() {
 	addResourceType("appl::GlyphPainting");
 }
 
-void appl::GlyphPainting::init(const etk::String& _filename) {
-	gale::Resource::init(_filename);
-	APPL_DEBUG("SFP : load \"" << _filename << "\"");
+void appl::GlyphPainting::init(const etk::Uri& _uri) {
+	gale::Resource::init(_uri);
+	APPL_DEBUG("SFP : load \"" << _uri << "\"");
 	reload();
 }
 
@@ -27,8 +26,8 @@ appl::GlyphPainting::~GlyphPainting() {
 
 void appl::GlyphPainting::reload() {
 	ejson::Document doc;
-	if (doc.load(m_name) == false) {
-		APPL_ERROR("Can not load file : '" << m_name << "' = " << etk::FSNode(m_name).getFileSystemName());
+	if (doc.load(etk::Uri(m_name)) == false) {
+		APPL_ERROR("Can not load file : '" << m_name << "' = " << etk::Uri(m_name));
 		return;
 	}
 	// for debug only :

@@ -14,7 +14,7 @@ appl::TagFileList::TagFileList() :
 	m_selectedLine = -1;
 	setMouseLimit(1);
 	// Load color properties: (use file list to be generic ...)
-	m_colorProperty = ewol::resource::ColorFile::create("THEME:COLOR:ListFileSystem.json");
+	m_colorProperty = ewol::resource::ColorFile::create("THEME_COLOR://ListFileSystem.json");
 	if (m_colorProperty != null) {
 		m_colorIdText = m_colorProperty->request("text");
 		m_colorIdBackground1 = m_colorProperty->request("background1");
@@ -50,7 +50,7 @@ fluorine::Variant appl::TagFileList::getData(int32_t _role, const ivec2& _pos) {
 				if (0 == _pos.x()) {
 					return etk::toString(m_list[_pos.y()]->fileLine);
 				}
-				return m_list[_pos.y()]->filename;
+				return m_list[_pos.y()]->filename.getString();
 			}
 			return "ERROR";
 		case ewol::widget::ListRole::FgColor:
@@ -82,9 +82,9 @@ bool appl::TagFileList::onItemEvent(const ewol::event::Input& _event, const ivec
 			    && m_selectedLine < (int64_t)m_list.size()
 			    && null != m_list[m_selectedLine] ) {
 				if (previousRaw != m_selectedLine) {
-					signalSelect.emit(etk::toString(m_list[_pos.y()]->fileLine)+":"+m_list[m_selectedLine]->filename);
+					signalSelect.emit(m_list[m_selectedLine]->filename, m_list[_pos.y()]->fileLine);
 				} else {
-					signalValidate.emit(etk::toString(m_list[_pos.y()]->fileLine)+":"+m_list[m_selectedLine]->filename);
+					signalValidate.emit(m_list[m_selectedLine]->filename, m_list[_pos.y()]->fileLine);
 				}
 			} else {
 				signalUnSelect.emit();
@@ -103,7 +103,7 @@ bool appl::TagFileList::onItemEvent(const ewol::event::Input& _event, const ivec
  * @param[in] file Compleate file name
  * @param[in] jump line id
  */
-void appl::TagFileList::add(etk::String& _file, int32_t _line) {
+void appl::TagFileList::add(etk::Path& _file, int32_t _line) {
 	appl::TagListElement *tmpFile = ETK_NEW(appl::TagListElement, _file, _line);
 	if (null != tmpFile) {
 		m_list.pushBack(tmpFile);
@@ -112,3 +112,7 @@ void appl::TagFileList::add(etk::String& _file, int32_t _line) {
 }
 
 
+
+#include <esignal/details/Signal.hxx>
+// declare for signal event
+ESIGNAL_DECLARE_SIGNAL(etk::Path, int32_t);

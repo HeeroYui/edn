@@ -415,7 +415,7 @@ namespace appl {
 			void onCallbackIsModify();
 			void onCallbackShortCut(const etk::String& _value);
 			void onCallbackSelectChange();
-			void onCallbackselectNewFile(const etk::String& _value);
+			void onCallbackselectNewFile(const ememory::SharedPtr<appl::Buffer>& _value);
 	};
 }
 

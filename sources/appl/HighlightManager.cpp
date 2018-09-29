@@ -8,6 +8,7 @@
 #include <appl/HighlightManager.hpp>
 #include <ewol/object/Object.hpp>
 #include <ewol/object/Manager.hpp>
+#include <etk/path/fileSystem.hpp>
 
 
 // TODO : Review this in a generic unique resource ...
@@ -25,28 +26,25 @@ void appl::highlightManager::init() {
 		hlList.clear();
 	}
 	APPL_DEBUG("HighlightManager  == > INIT");
-	etk::FSNode myFile("DATA:languages/");
-	// get the subfolder list :
-	etk::Vector<etk::FSNode *> list = myFile.folderGetSubList(false, true, false,false);
-	for (auto &it : list) {
-		if (it == null) {
+	// TODO: Add search in the  etk::Uri uri("DATA_USER://languages/");
+	etk::Uri uri("DATA://languages/");
+	// get the subfolder list:
+	etk::Vector<etk::Uri> list = etk::uri::listRecursive(uri); // TODO: filter only the folder
+	for (auto &it: list) {
+		// TODO: etk::uri::isDirectory(it) ==> not implemented ...
+		if (etk::path::isDirectory(it.getPath()) == false) {
 			continue;
 		}
-		if (it->getNodeType() != etk::typeNode_folder) {
-			continue;
-		}
-		etk::String filename = it->getName() + "/highlight.xml";
-		APPL_DEBUG("Load xml name : " << filename);
-		ememory::SharedPtr<appl::Highlight> myHightLine = appl::Highlight::create(filename);
-		if (myHightLine != null) {
+		ememory::SharedPtr<appl::Highlight> myHightLight = appl::Highlight::create(it.getPath() / "highlight.xml");
+		if (myHightLight != null) {
 			// Check if the language name already exist
 			for (auto &it2 : hlList) {
 				if (    it2 != null
-				     && it2->getTypeName() == myHightLine->getTypeName() ) {
-					APPL_WARNING("LANGUAGE : replace pattern name: '" << myHightLine->getTypeName() << "' with file '" << filename << "' replace: " << it2->getName());
+				     && it2->getTypeName() == myHightLight->getTypeName() ) {
+					APPL_WARNING("LANGUAGE : replace pattern name: '" << myHightLight->getTypeName() << "' with file '" << it.getPath() / "highlight.xml" << "' replace: " << it2->getName());
 				}
 			}
-			hlList.pushBack(myHightLine);
+			hlList.pushBack(myHightLight);
 		} else {
 			APPL_ERROR("Can not allocate HighLight");
 		}
@@ -70,8 +68,8 @@ void appl::highlightManager::unInit() {
 	hlList.clear();
 }
 
-etk::String appl::highlightManager::getTypeFile(const etk::String& _fileName) {
-	if (_fileName.size() == 0) {
+etk::String appl::highlightManager::getTypeFile(const etk::Path& _fileName) {
+	if (_fileName.isEmpty() == true) {
 		return "";
 	}
 	APPL_WARNING("Try to find type for extention : '" << _fileName << "' in " << s_list().size() << " types");
@@ -106,6 +104,12 @@ etk::String appl::highlightManager::getFileWithTypeType(const etk::String& _type
 
 etk::Vector<etk::String> appl::highlightManager::getTypeList() {
 	etk::Vector<etk::String> ret;
+	for (auto &it : s_list()) {
+		if (it == null) {
+			continue;
+		}
+		ret.pushBack(it->getTypeName());
+	}
 	return ret;
 }
 

@@ -83,8 +83,12 @@ void appl::TextViewer::onCallbackShortCut(const etk::String& _value) {
 }
 
 
-void appl::TextViewer::onCallbackselectNewFile(const etk::String& _value) {
-	APPL_INFO("Select new file: " << _value);
+void appl::TextViewer::onCallbackselectNewFile(const ememory::SharedPtr<appl::Buffer>& _value) {
+	if (_value == null) {
+		APPL_INFO("Select new file: ___NO-FILE___");
+	} else {
+		APPL_INFO("Select new file: " << _value->getFileName());
+	}
 	if (isSelectedLast() == false) {
 		return;
 	}
@@ -115,7 +119,7 @@ void appl::TextViewer::onCallbackselectNewFile(const etk::String& _value) {
 	}
 	m_originScrooled = vec2(0,0);
 	if (m_bufferManager != null) {
-		m_buffer = m_bufferManager->get(_value);
+		m_buffer = _value;
 		m_bufferManager->setBufferSelected(m_buffer);
 		if (m_buffer != null) {
 			m_buffer->signalIsModify.connect(sharedFromThis(), &appl::TextViewer::onCallbackIsModify);
@@ -138,12 +142,7 @@ etk::String appl::TextViewer::getBufferPath() {
 	if (m_buffer == null) {
 		return "";
 	}
-	etk::String filename = m_buffer->getFileName();
-	size_t pos = filename.rfind('/');
-	if (pos == etk::String::npos) {
-		return "";
-	}
-	return etk::String(filename, 0, pos);
+	return m_buffer->getFileName().getParent().getString();
 }
 
 

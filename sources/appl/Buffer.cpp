@@ -122,7 +122,7 @@ appl::Buffer::Buffer() :
   m_highlight(null) {
 	addObjectType("appl::Buffer");
 	static int32_t bufferBaseId = 0;
-	m_fileName = etk::FSNode("REL:No Name " + etk::toString(bufferBaseId)).getFileSystemName();
+	m_fileName = "No Name " + etk::toString(bufferBaseId);
 	bufferBaseId++;
 }
 
@@ -134,18 +134,15 @@ appl::Buffer::~Buffer() {
 	APPL_ERROR("REAL remove buffer : '" << propertyName << "'");
 }
 
-bool appl::Buffer::loadFile(const etk::String& _name) {
+bool appl::Buffer::loadFile(const etk::Path& _name) {
 	APPL_DEBUG("Convert filename :'" << _name << "'");
-	etk::FSNode file(_name);
-	etk::String name = file.getName();
-	APPL_INFO("Load file : '" << name << "'");
-	m_fileName = file.getFileSystemName();
+	m_fileName = _name;
 	m_hasFileName = true;
 	m_isModify = true;
 	m_cursorPos = 0;
 	setHighlightType("");
 	m_nbLines = 0;
-	if (m_data.dumpFrom(m_fileName) == true ) {
+	if (m_data.dumpFrom(_name) == true ) {
 		countNumberofLine();
 		tryFindHighlightType();
 		m_isModify = false;
@@ -154,14 +151,12 @@ bool appl::Buffer::loadFile(const etk::String& _name) {
 	return false;
 }
 
-void appl::Buffer::setFileName(const etk::String& _name) {
+void appl::Buffer::setFileName(const etk::Path& _name) {
 	APPL_DEBUG("Convert filename :'" << _name << "'");
-	etk::FSNode file(_name);
-	etk::String name = file.getName();
-	if (m_fileName == file.getFileSystemName()) {
+	if (m_fileName == _name) {
 		return;
 	}
-	m_fileName = file.getFileSystemName();
+	m_fileName = _name;
 	m_hasFileName = true;
 	signalChangeName.emit();
 	setModification(true);
@@ -675,8 +670,7 @@ void appl::Buffer::removeSelection() {
 }
 
 void appl::Buffer::tryFindHighlightType() {
-	etk::FSNode file(m_fileName);
-	etk::String type = appl::highlightManager::getTypeFile(file.getNameFile());
+	etk::String type = appl::highlightManager::getTypeFile(m_fileName.getFileName());
 	if (type.size() == 0) {
 		return;
 	}
@@ -1013,7 +1007,7 @@ uint32_t appl::Buffer::getCursorLinesId() {
 namespace etk {
 	template<> etk::String toString<ememory::SharedPtr<appl::Buffer>>(const ememory::SharedPtr<appl::Buffer>& _obj) {
 		if (_obj != null) {
-			return _obj->getFileName();
+			return _obj->getFileName().getString();
 		}
 		return "";
 	}
@@ -1032,7 +1026,7 @@ namespace etk {
 		return from_string(_variableRet, etk::toString(_value));
 	}
 	template<> etk::String toString<appl::Buffer>(const appl::Buffer& _obj) {
-		return _obj.getFileName();
+		return _obj.getFileName().getString();
 	}
 	template<> etk::UString toUString<appl::Buffer>(const appl::Buffer& _obj) {
 		return etk::toUString(etk::toString(_obj));

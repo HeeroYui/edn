@@ -16,20 +16,20 @@
 // ctags --recurse -f tags --fields=n -h ".h.hpp" --tag-relative=yes framework/atria-soft/
 
 namespace appl {
-	void setCtagsFileName(const etk::String& _file);
+	void setCtagsFileName(const etk::Uri& _uri);
 	class TextPluginCtags : public appl::TextViewerPlugin {
 		private:
 			// Global plugin data (not specific on buffer :
 			/*
 			etk::Vector<etk::Pair<etk::String, int64_t>> m_historyList;
 			*/
-			etk::String m_tagFolderBase;
+			etk::Path m_tagFolderBase;
 			etk::String m_tagFilename;
 			tagFile* m_ctagFile;
 			void loadTagFile();
 			void printTag(const tagEntry *_entry);
 			void jumpTo(const etk::String& _name);
-			void jumpFile(const etk::String& _filename, int64_t _lineId);
+			void jumpFile(const etk::Path& _filename, int64_t _lineId);
 			ememory::SharedPtr<appl::BufferManager> m_bufferManager; //!< handle on the buffer manager
 		protected:
 			TextPluginCtags();
@@ -42,8 +42,8 @@ namespace appl {
 			virtual bool onReceiveShortCut(appl::TextViewer& _textDrawer,
 			                               const etk::String& _shortCutName);
 			// callback function:
-			void onCallbackOpenCtagsOpenFileReturn(const etk::String& _value);
-			void onCallbackOpenCtagsSelectReturn(const etk::String& _value);
+			void onCallbackOpenCtagsOpenFileReturn(const etk::Path& _path);
+			void onCallbackOpenCtagsSelectReturn(const etk::Path& _path, const int32_t& _line);
 	};
 }
 

@@ -6,7 +6,6 @@
 #pragma once
 
 #include <etk/types.hpp>
-#include <etk/os/FSNode.hpp>
 #include <ewol/ewol.hpp>
 #include <etk/Buffer.hpp>
 #include <ewol/object/Object.hpp>
@@ -300,12 +299,12 @@ namespace appl {
 			virtual ~Buffer();
 		private:
 			bool m_hasFileName; //!< When new file, the buffer has no name ==> but it might be reference with a single name ...
-			etk::String m_fileName; //!< name of the file (with his path)
+			etk::Path m_fileName; //!< name of the file (with his path)
 		public:
 			/**
 			 * @brief get the curent filename of the Buffer
 			 */
-			const etk::String& getFileName() const {
+			const etk::Path& getFileName() const {
 				return m_fileName;
 			}
 			/**
@@ -320,12 +319,12 @@ namespace appl {
 			 * @param[in] _name name of the file.
 			 * @return true if file corectly opened.
 			 */
-			bool loadFile(const etk::String& _name);
+			bool loadFile(const etk::Path& _name);
 			/**
 			 * @brief Set a file name at this buffer (no saving ...)
 			 * @param[in] _name name of the file.
 			 */
-			void setFileName(const etk::String& _name);
+			void setFileName(const etk::Path& _name);
 			/**
 			 * @brief save the file in the specify path.
 			 * @return true is saving well done

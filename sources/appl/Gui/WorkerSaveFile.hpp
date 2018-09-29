@@ -13,7 +13,7 @@ namespace appl {
 		public:
 			esignal::Signal<> signalSaveDone;
 			esignal::Signal<> signalAbort;
-			eproperty::Value<etk::String> propertyBufferName;
+			eproperty::Value<etk::Path> propertyBufferName;
 			eproperty::Value<bool> propertyForceSave;
 		protected:
 			WorkerSaveFile();
@@ -25,7 +25,7 @@ namespace appl {
 			ememory::SharedPtr<ewol::widget::FileChooser> m_chooser; //! pop-up element that is open...
 			ememory::SharedPtr<appl::BufferManager> m_bufferManager; //!< handle on the buffer manager
 		public: // callback function
-			void onCallbackSaveAsValidate(const etk::String& _value);
+			void onCallbackSaveAsValidate(const etk::Path& _value);
 			void onCallbackCancel();
 	};
 }

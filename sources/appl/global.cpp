@@ -8,10 +8,10 @@
 #include <ewol/object/Object.hpp>
 #include <ewol/context/Context.hpp>
 #include <gale/resource/Manager.hpp>
-#include <etk/os/FSNode.hpp>
+#include <etk/theme/theme.hpp>
 #include <ejson/ejson.hpp>
 
-static etk::String g_baseDBName = "USERDATA:genericConfig.json";
+static etk::Uri g_baseDBName = "USER_DATA://genericConfig.json";
 
 
 class myParamGlobal : public ewol::Object {

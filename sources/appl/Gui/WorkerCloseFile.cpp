@@ -24,14 +24,14 @@ void appl::WorkerCloseFile::init() {
 	ewol::object::Worker::init();
 }
 
-void appl::WorkerCloseFile::startAction(const etk::String& _bufferName) {
+void appl::WorkerCloseFile::startAction(const etk::Path& _bufferName) {
 	m_bufferName = _bufferName;
 	if (m_bufferManager == null) {
 		APPL_ERROR("can not call unexistant buffer manager ... ");
 		destroy();
 		return;
 	}
-	if (m_bufferName == "") {
+	if (m_bufferName.isEmpty() == true) {
 		// need to find the curent file ...
 		ememory::SharedPtr<appl::Buffer> tmpp = m_bufferManager->getBufferSelected();
 		if (tmpp == null) {
@@ -66,7 +66,7 @@ void appl::WorkerCloseFile::startAction(const etk::String& _bufferName) {
 		return;
 	}
 	tmpPopUp->propertyTitle.set("<bold>_T{Close un-saved file:}</bold>");
-	tmpPopUp->propertyComment.set("_T{The file named:} <i>'" + m_buffer->getFileName() + "'</i> _T{is curently modify.}<br/>_T{If you don't saves these modifications,}<br/>_T{they will be definitly lost...}");
+	tmpPopUp->propertyComment.set("_T{The file named:} <i>'" + m_buffer->getFileName().getString() + "'</i> _T{is curently modify.}<br/>_T{If you don't saves these modifications,}<br/>_T{they will be definitly lost...}");
 	ememory::SharedPtr<ewol::widget::Button> bt = null;
 	if (m_buffer->hasFileName() == true) {
 		bt = tmpPopUp->addButton("_T{Save}", true);
@@ -132,7 +132,7 @@ void appl::WorkerCloseFile::onCallbackSaveValidate() {
 		return;
 	}
 	if (m_buffer->storeFile() == false) {
-		ewol::tools::message::displayWarning("We can not save the file : <br/><i>" + m_buffer->getFileName() + "</i>");
+		ewol::tools::message::displayWarning("We can not save the file : <br/><i>" + m_buffer->getFileName().getString() + "</i>");
 		signalAbort.emit();
 	} else {
 		m_buffer->destroy();

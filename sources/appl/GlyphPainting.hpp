@@ -16,9 +16,9 @@ namespace appl {
 			etk::Vector<appl::GlyphDecoration> m_list;
 		protected:
 			GlyphPainting();
-			void init(const etk::String& _filename);
+			void init(const etk::Uri& _uri);
 		public:
-			DECLARE_RESOURCE_NAMED_FACTORY(GlyphPainting);
+			DECLARE_RESOURCE_URI_FACTORY(GlyphPainting);
 			virtual ~GlyphPainting();
 		public:
 			/**

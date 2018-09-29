@@ -25,9 +25,9 @@ namespace appl {
 			/**
 			 * @brief Action to do 
 			 */
-			void startAction(const etk::String& _bufferName);
+			void startAction(const etk::Path& _bufferName);
 		private:
-			etk::String m_bufferName;
+			etk::Path m_bufferName;
 			ememory::SharedPtr<appl::Buffer> m_buffer; //!< reference on the buffer (when rename, we have no more reference on the buffer
 			ememory::SharedPtr<appl::WorkerSaveFile> m_worker; //! sub-worker element...
 			ememory::SharedPtr<appl::BufferManager> m_bufferManager; //!< handle on the buffer manager

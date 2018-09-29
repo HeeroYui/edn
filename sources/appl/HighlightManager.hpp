@@ -25,7 +25,7 @@ namespace appl {
 		 * @param[in] _fileName name of the file
 		 * @return type of highlight
 		 */
-		etk::String getTypeFile(const etk::String& _fileName);
+		etk::String getTypeFile(const etk::Path& _fileName);
 		/**
 		 * @brief Get filename with type.
 		 * @param[in] _type Type name of the highlight.

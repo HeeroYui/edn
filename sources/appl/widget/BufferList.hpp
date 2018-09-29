@@ -14,12 +14,12 @@
 namespace appl {
 	class dataBufferStruct {
 		public:
-			etk::FSNode m_bufferName;
+			etk::Path m_bufferName;
 			ememory::SharedPtr<appl::Buffer> m_buffer;
 			dataBufferStruct() {
 				
 			};
-			dataBufferStruct(const etk::String& _bufferName, const ememory::SharedPtr<appl::Buffer>& _buffer) :
+			dataBufferStruct(const etk::Path& _bufferName, const ememory::SharedPtr<appl::Buffer>& _buffer) :
 			  m_bufferName(_bufferName),
 			  m_buffer(_buffer) {
 				
@@ -74,8 +74,8 @@ namespace appl {
 				void onCallbackChangeName();
 				void onCallbackIsSave();
 				void onCallbackIsModify();
-				void onCallbackNewBuffer(const etk::String& _value);
-				void onCallbackselectNewFile(const etk::String& _value);
+				void onCallbackNewBuffer(const ememory::SharedPtr<appl::Buffer>& _buffer);
+				void onCallbackselectNewFile(const ememory::SharedPtr<appl::Buffer>& _buffer);
 				void onCallbackBufferRemoved(const ememory::SharedPtr<appl::Buffer>& _buffer);
 				void calculateMinMaxSize() override;
 		};

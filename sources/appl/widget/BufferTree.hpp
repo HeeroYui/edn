@@ -11,20 +11,21 @@
 #include <ewol/widget/TreeView.hpp>
 #include <ewol/widget/Windows.hpp>
 #include <etk/FlatTree.hpp>
+#include <etk/path/fileSystem.hpp>
 
 namespace appl {
 	class TreeElement {
 		public:
-			TreeElement(const etk::FSNode& _node, bool _isExpand=false):
-			  m_path(_node.getFileSystemName()),
-			  m_nodeName(_node.getNameFile()),
-			  m_isFolder(_node.getNodeType() == etk::typeNode_folder),
+			TreeElement(const etk::Path& _path, bool _isExpand = false):
+			  m_path(_path),
+			  m_nodeName(_path.getFileName()),
+			  m_isFolder(etk::path::isDirectory(_path) == true),
 			  m_buffer(null),
 			  m_isSelected(false),
 			  m_isExpand(_isExpand) {
 				
 			}
-			etk::String m_path;
+			etk::Path m_path;
 			etk::String m_nodeName; // must be here ==> the buffer is optionnal..
 			bool m_isFolder;
 			ememory::SharedPtr<appl::Buffer> m_buffer;
@@ -54,7 +55,7 @@ namespace appl {
 				int32_t m_selectedID;
 				void updateFlatTree();
 				void generateFlatTree();
-				etk::String getRootPath();
+				etk::Path getRootPath();
 				void populateNodeIfNeeded(ememory::SharedPtr<etk::TreeNode<appl::TreeElement>> _node);
 				void goUpper();
 				ememory::SharedPtr<etk::TreeNode<TreeElement>> m_tree;

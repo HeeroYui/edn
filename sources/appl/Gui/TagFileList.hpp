@@ -11,9 +11,9 @@
 namespace appl {
 	class TagListElement {
 		public:
-			etk::String filename;
-			int32_t      fileLine;
-			TagListElement(etk::String& _file, int32_t _line) :
+			etk::Path filename;
+			int32_t fileLine;
+			TagListElement(etk::Path& _file, int32_t _line) :
 			  filename(_file),
 			  fileLine(_line) {
 				
@@ -24,8 +24,8 @@ namespace appl {
 	};
 	class TagFileList : public ewol::widget::List {
 		public:
-			esignal::Signal<etk::String> signalSelect;
-			esignal::Signal<etk::String> signalValidate;
+			esignal::Signal<etk::Path, int32_t> signalSelect;
+			esignal::Signal<etk::Path, int32_t> signalValidate;
 			esignal::Signal<> signalUnSelect;
 		private:
 			int32_t m_selectedLine;
@@ -53,7 +53,7 @@ namespace appl {
 			 * @param[in] file Compleate file name
 			 * @param[in] jump line id
 			 */
-			void add(etk::String& _file, int32_t _line);
+			void add(etk::Path& _file, int32_t _line);
 	};
 }
 

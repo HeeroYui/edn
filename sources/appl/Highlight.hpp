@@ -19,7 +19,6 @@ namespace appl {
 }
 
 #include <ememory/memory.hpp>
-#include <etk/os/FSNode.hpp>
 #include <appl/HighlightPattern.hpp>
 #include <appl/GlyphPainting.hpp>
 #include <etk/Buffer.hpp>
@@ -32,9 +31,9 @@ namespace appl {
 		public:
 			// Constructeur
 			Highlight();
-			void init(const etk::String& _xmlFilename, const etk::String& _colorFile = "THEME:COLOR:textViewer.json");
+			void init(const etk::Uri& _uriXML, const etk::Uri& _uriColorFile = "THEME_COLOR://textViewer.json");
 		public:
-			DECLARE_RESOURCE_NAMED_FACTORY(Highlight);
+			DECLARE_RESOURCE_URI_FACTORY(Highlight);
 			virtual ~Highlight();
 		private:
 			etk::String m_typeName; //!< descriptive string type like "C/C++"
@@ -47,8 +46,8 @@ namespace appl {
 				return m_typeName;
 			}
 		public:
-			bool isCompatible(const etk::String& _name);
-			bool fileNameCompatible(const etk::String& _fileName);
+			bool isCompatible(const etk::Path& _name);
+			bool fileNameCompatible(const etk::Path& _fileName);
 			void display();
 			void parse(int64_t _start,
 			           int64_t _stop,

@@ -19,7 +19,7 @@ static void SortElementList(etk::Vector<appl::dataBufferStruct>& _list) {
 		size_t findPos = 0;
 		for(size_t jjj=0; jjj<_list.size(); jjj++) {
 			//EWOL_DEBUG("compare : \""<<*tmpList[iii] << "\" and \"" << *m_listDirectory[jjj] << "\"");
-			if (tmpList[iii].m_bufferName.getNameFile() > _list[jjj].m_bufferName.getNameFile()) {
+			if (tmpList[iii].m_bufferName.getFileName() > _list[jjj].m_bufferName.getFileName()) {
 				findPos = jjj+1;
 			}
 		}
@@ -53,17 +53,17 @@ void appl::widget::BufferTree::init() {
 	propertyCanFocus.set(true);
 	propertyTextIsDecorated.set(false);
 	if (m_bufferManager != null) {
-		m_bufferManager->signalNewBuffer2.connect(sharedFromThis(), &appl::widget::BufferTree::onNewBuffer);
-		m_bufferManager->signalSelectBuffer.connect(sharedFromThis(), &appl::widget::BufferTree::onSelectBuffer);
+		m_bufferManager->signalNewBuffer.connect(sharedFromThis(), &appl::widget::BufferTree::onNewBuffer);
+		m_bufferManager->signalSelectFile.connect(sharedFromThis(), &appl::widget::BufferTree::onSelectBuffer);
 		m_bufferManager->signalRemoveBuffer.connect(sharedFromThis(), &appl::widget::BufferTree::onRemoveBuffer);
 	}
 }
 
-static etk::String getCommonPathPart(const etk::String& _left, const etk::String& _right) {
+static etk::String getCommonPathPart(const etk::Path& _left, const etk::Path& _right) {
 	etk::String out;
-	for (size_t iii=0; iii < etk::min(_left.size(), _right.size()); ++iii) {
-		if (_left[iii] == _right[iii]) {
-			out += _left[iii];
+	for (size_t iii=0; iii < etk::min(_left.getString().size(), _right.getString().size()); ++iii) {
+		if (_left.getString()[iii] == _right.getString()[iii]) {
+			out += _left.getString()[iii];
 			continue;
 		}
 		break;
@@ -75,11 +75,10 @@ static etk::String getCommonPathPart(const etk::String& _left, const etk::String
 
 void appl::widget::BufferTree::generateFlatTree() {
 	// Brut Force Mode...
-	etk::String upperParent = getRootPath();
+	etk::Path upperParent = getRootPath();
 	// Now we have the root path...
 	// Need to feed all elements needed.
-	etk::FSNode nodeRoot = upperParent;
-	m_tree = etk::TreeNode<appl::TreeElement>::create(TreeElement(nodeRoot, true));
+	m_tree = etk::TreeNode<appl::TreeElement>::create(TreeElement(upperParent, true));
 	populateNodeIfNeeded(m_tree);
 	updateFlatTree();
 }
@@ -97,11 +96,11 @@ void appl::widget::BufferTree::populateNodeIfNeeded(ememory::SharedPtr<etk::Tree
 		// already populated...
 		return;
 	}
-	etk::Vector<etk::FSNode*> child = etk::FSNode(value.m_path).folderGetSubList(false, true, true, false);
+	etk::Vector<etk::Path> child = etk::path::list(value.m_path);
 	APPL_ERROR("    nbChilds: " << child.size() << " for path: " << value.m_path);
 	for (auto& it: child) {
-		APPL_ERROR("add element: " << *it);
-		auto elem = etk::TreeNode<appl::TreeElement>::create(TreeElement(*it, false));
+		APPL_ERROR("add element: " << it);
+		auto elem = etk::TreeNode<appl::TreeElement>::create(TreeElement(it, false));
 		_node->addChild(elem);
 		// TODO: ETK_FREE(etk::FSNode, it);
 	}
@@ -114,8 +113,8 @@ void appl::widget::BufferTree::goUpper() {
 		return;
 	}
 	// generate new futur root node ...
-	etk::FSNode node = etk::FSNode(m_tree->getData().m_path).folderGetParent();
-	auto treeElement = etk::TreeNode<appl::TreeElement>::create(TreeElement(node, true));
+	etk::Path path = m_tree->getData().m_path.getParent();
+	auto treeElement = etk::TreeNode<appl::TreeElement>::create(TreeElement(path, true));
 	// Add all sub-items
 	populateNodeIfNeeded(treeElement);
 	// find old root node in the sublist:
@@ -163,8 +162,8 @@ void appl::widget::BufferTree::removeAllElement() {
 	//m_list.clear();
 }
 
-etk::String appl::widget::BufferTree::getRootPath() {
-	etk::String upperParent = "";
+etk::Path appl::widget::BufferTree::getRootPath() {
+	etk::Path upperParent = "";
 	etk::Vector<appl::BufferShared> tmpNewBuffer;
 	for (auto& it : *m_bufferManager) {
 		if (it == null) {
@@ -174,18 +173,18 @@ etk::String appl::widget::BufferTree::getRootPath() {
 			tmpNewBuffer.pushBack(it);
 			continue;
 		}
-		etk::FSNode nodeName = it->getFileName();
-		if (upperParent == "") {
-			upperParent = nodeName.getNameFolder();
-			APPL_ERROR("init root: " << nodeName.getFileSystemName() << " root=" << upperParent);
+		etk::Path nodeName = it->getFileName();
+		if (upperParent.isEmpty() == true) {
+			upperParent = nodeName.getParent();
+			APPL_ERROR("init root: " << nodeName << " root=" << upperParent);
 			continue;
 		}
-		upperParent = getCommonPathPart(upperParent, nodeName.getNameFolder());
-		APPL_ERROR("Update: " << nodeName.getFileSystemName() << "   " << nodeName.getNameFolder() << "    root=" << upperParent);
+		upperParent = getCommonPathPart(upperParent, nodeName.getParent());
+		APPL_ERROR("Update: " << nodeName << "   " << nodeName.getParent() << "    root=" << upperParent);
 	}
 	if (upperParent == "") {
 		APPL_ERROR("Nothing find ==> get home path...");
-		upperParent = etk::FSNodeGetHomePath();
+		upperParent = etk::path::getHomePath();
 	}
 	APPL_ERROR("update tree: " << upperParent);
 	return upperParent;
@@ -196,7 +195,7 @@ void appl::widget::BufferTree::onNewBuffer(const ememory::SharedPtr<appl::Buffer
 	if (m_tree == null) {
 		generateFlatTree();
 	} else {
-		etk::String rootPath = getRootPath();
+		etk::Path rootPath = getRootPath();
 		while (rootPath != m_tree->getData().m_path ) {
 			goUpper();
 		}

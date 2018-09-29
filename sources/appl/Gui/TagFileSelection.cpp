@@ -91,8 +91,8 @@ appl::TagFileSelection::~TagFileSelection() {
 }
 
 void appl::TagFileSelection::onCallbackCtagsSelection() {
-	if (m_eventNamed != "") {
-		signalSelect.emit(m_eventNamed);
+	if (m_eventLine != -1) {
+		signalSelect.emit(m_eventPath, m_eventLine);
 		// == > Auto remove ...
 		autoDestroy();
 	}
@@ -104,18 +104,20 @@ void appl::TagFileSelection::onCallbackCtagsCancel() {
 	autoDestroy();
 }
 
-void appl::TagFileSelection::onCallbackCtagsListValidate(const etk::String& _value) {
-	signalSelect.emit(_value);
+void appl::TagFileSelection::onCallbackCtagsListValidate(const etk::Path& _path, const int32_t& _line) {
+	signalSelect.emit(_path, _line);
 	// == > Auto remove ...
 	autoDestroy();
 }
 
-void appl::TagFileSelection::onCallbackCtagsListSelect(const etk::String& _value) {
-	m_eventNamed = _value;
+void appl::TagFileSelection::onCallbackCtagsListSelect(const etk::Path& _path, const int32_t& _line) {
+	m_eventPath = _path;
+	m_eventLine = _line;
 }
 
 void appl::TagFileSelection::onCallbackCtagsListUnSelect() {
-	m_eventNamed = "";
+	m_eventPath = "";
+	m_eventLine = -1;
 }
 
 
@@ -125,7 +127,7 @@ void appl::TagFileSelection::onCallbackCtagsListUnSelect() {
  * @param[in] file Compleate file name
  * @param[in] jump line id
  */
-void appl::TagFileSelection::addCtagsNewItem(etk::String _file, int32_t _line) {
+void appl::TagFileSelection::addCtagsNewItem(etk::Path _file, int32_t _line) {
 	if (m_listTag != null) {
 		m_listTag->add(_file, _line);
 	}

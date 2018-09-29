@@ -10,10 +10,10 @@
 #include <ewol/context/Context.hpp>
 #include <appl/Gui/TagFileSelection.hpp>
 
-static etk::String g_staticCtagsFileName;
+static etk::Uri g_staticCtagsFileName;
 
-void appl::setCtagsFileName(const etk::String& _file) {
-	g_staticCtagsFileName = _file;
+void appl::setCtagsFileName(const etk::Uri& _uri) {
+	g_staticCtagsFileName = _uri;
 }
 
 appl::TextPluginCtags::TextPluginCtags() :
@@ -24,8 +24,9 @@ appl::TextPluginCtags::TextPluginCtags() :
 	// load buffer manager:
 	m_bufferManager = appl::BufferManager::create();
 	addObjectType("appl::TextPluginCtags");
-	if (g_staticCtagsFileName != "") {
-		m_tagFilename = g_staticCtagsFileName;
+	if (g_staticCtagsFileName.isEmpty() == false) {
+		m_tagFolderBase = g_staticCtagsFileName.getPath().getParent();
+		m_tagFilename = g_staticCtagsFileName.getPath().getFileName();
 		loadTagFile();
 	}
 }
@@ -61,8 +62,7 @@ void appl::TextPluginCtags::jumpTo(const etk::String& _name) {
 	int32_t numberOfTags = 0;
 	
 	// For all tags : Save in an internal Structure :
-	etk::String tmpFile(m_tagFolderBase + "/" + entry.file);
-	etk::FSNode myfile(tmpFile);
+	etk::Path tmpFile = m_tagFolderBase / entry.file;
 	int32_t lineID = entry.address.lineNumber;
 	printTag(&entry);
 	
@@ -72,31 +72,26 @@ void appl::TextPluginCtags::jumpTo(const etk::String& _name) {
 		if (tmpWidget == null) {
 			APPL_ERROR("Can not allocate widget  == > display might be in error");
 		} else {
-			tmpWidget->addCtagsNewItem(myfile.getFileSystemName(), lineID);
+			tmpWidget->addCtagsNewItem(tmpFile, lineID);
 			do {
-				tmpFile = m_tagFolderBase + "/" + entry.file;
-				myfile = tmpFile;
+				tmpFile = m_tagFolderBase / entry.file;
 				lineID = entry.address.lineNumber;
 				printTag(&entry);
-				tmpWidget->addCtagsNewItem(myfile.getFileSystemName(), lineID);
+				tmpWidget->addCtagsNewItem(tmpFile, lineID);
 			} while (tagsFindNext (m_ctagFile, &entry) == TagSuccess);
 			ewol::getContext().getWindows()->popUpWidgetPush(tmpWidget);
 			tmpWidget->signalSelect.connect(sharedFromThis(), &appl::TextPluginCtags::onCallbackOpenCtagsSelectReturn);
 		}
 	} else {
-		jumpFile(myfile.getName(), lineID - 1);
+		jumpFile(tmpFile, lineID - 1);
 	}
 }
 
-void appl::TextPluginCtags::jumpFile(const etk::String& _filename, int64_t _lineId) {
+void appl::TextPluginCtags::jumpFile(const etk::Path& _filename, int64_t _lineId) {
 	// save the current file in the history
 	// TODO : registerHistory();
 	if (m_bufferManager != null) {
-		etk::String plop = _filename;
-		while (plop[0] == '/') {
-			plop.erase(0);
-		}
-		m_bufferManager->open(plop);
+		m_bufferManager->open(_filename);
 	}
 	//sendMultiCast(appl::MsgSelectGotoLineSelect, etk::toString(_lineId));
 	APPL_TODO("request jup at line ...");
@@ -113,8 +108,8 @@ void appl::TextPluginCtags::loadTagFile() {
 		return;
 	}
 	// load (open) the tag file : 
-	APPL_INFO("try to open tag file : " << m_tagFilename);
-	m_ctagFile = tagsOpen(m_tagFilename.c_str(), &info);
+	APPL_INFO("try to open tag file : " << g_staticCtagsFileName);
+	m_ctagFile = tagsOpen(g_staticCtagsFileName.getPath().getString().c_str(), &info);
 	if (null != m_ctagFile) {
 		APPL_INFO("open exuberant Ctags file is OK ...");
 	} else {
@@ -144,22 +139,17 @@ void appl::TextPluginCtags::printTag(const tagEntry *_entry) {
 	#endif
 }
 
-void appl::TextPluginCtags::onCallbackOpenCtagsOpenFileReturn(const etk::String& _value) {
+void appl::TextPluginCtags::onCallbackOpenCtagsOpenFileReturn(const etk::Path& _path) {
 	// open the new one :
-	etk::FSNode tmpFilename = _value;
-	m_tagFilename = tmpFilename.getNameFile();
-	m_tagFolderBase = tmpFilename.getNameFolder();
+	m_tagFilename = _path.getFileName();
+	m_tagFolderBase = _path.getParent();
 	APPL_INFO("Receive load Ctags file : " << m_tagFolderBase << "/" << m_tagFilename << " ");
 	loadTagFile();
 }
 
-void appl::TextPluginCtags::onCallbackOpenCtagsSelectReturn(const etk::String& _value) {
-	// parse the input data
-	char tmp[4096];
-	int32_t lineID;
-	// TODO : Review this ...
-	sscanf(_value.c_str(), "%d:%s", &lineID, tmp);
-	jumpFile(tmp, lineID - 1);
+void appl::TextPluginCtags::onCallbackOpenCtagsSelectReturn(const etk::Path& _path, const int32_t& _line) {
+
+	jumpFile(_path, _line - 1);
 }
 
 bool appl::TextPluginCtags::onReceiveShortCut(appl::TextViewer& _textDrawer,

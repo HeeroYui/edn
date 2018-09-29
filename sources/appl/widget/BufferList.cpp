@@ -19,7 +19,7 @@ static void SortElementList(etk::Vector<appl::dataBufferStruct>& _list) {
 		size_t findPos = 0;
 		for(size_t jjj=0; jjj<_list.size(); jjj++) {
 			//EWOL_DEBUG("compare : \""<<*tmpList[iii] << "\" and \"" << *m_listDirectory[jjj] << "\"");
-			if (tmpList[iii].m_bufferName.getNameFile() > _list[jjj].m_bufferName.getNameFile()) {
+			if (tmpList[iii].m_bufferName.getFileName() > _list[jjj].m_bufferName.getFileName()) {
 				findPos = jjj+1;
 			}
 		}
@@ -78,7 +78,7 @@ void appl::widget::BufferList::removeAllElement() {
 void appl::widget::BufferList::insertAlphabetic(const appl::dataBufferStruct& _dataStruct, bool _selectNewPosition) {
 	// alphabetical order:
 	for (size_t iii = 0; iii < m_list.size(); ++iii) {
-		if (m_list[iii].m_bufferName.getNameFile().toLower() > _dataStruct.m_bufferName.getNameFile().toLower()) {
+		if (m_list[iii].m_bufferName.getFileName().toLower() > _dataStruct.m_bufferName.getFileName().toLower()) {
 			m_list.insert(m_list.begin() + iii, _dataStruct);
 			if (_selectNewPosition == true) {
 				m_selectedID = iii;
@@ -92,16 +92,15 @@ void appl::widget::BufferList::insertAlphabetic(const appl::dataBufferStruct& _d
 	}
 }
 
-void appl::widget::BufferList::onCallbackNewBuffer(const etk::String& _value) {
-	ememory::SharedPtr<appl::Buffer> buffer = m_bufferManager->get(_value);
-	if (buffer == null) {
-		APPL_ERROR("event on element nor exist : " << _value);
+void appl::widget::BufferList::onCallbackNewBuffer(const ememory::SharedPtr<appl::Buffer>& _buffer) {
+	if (_buffer == null) {
 		return;
 	}
+	ememory::SharedPtr<appl::Buffer> buffer = _buffer;
 	buffer->signalIsSave.connect(sharedFromThis(), &BufferList::onCallbackIsSave);
 	buffer->signalIsModify.connect(sharedFromThis(), &BufferList::onCallbackIsModify);
 	buffer->signalChangeName.connect(sharedFromThis(), &BufferList::onCallbackChangeName);
-	appl::dataBufferStruct tmp(_value, buffer);
+	appl::dataBufferStruct tmp(_buffer->getFileName(), _buffer);
 	if (m_openOrderMode == true) {
 		m_list.pushBack(tmp);
 	} else {
@@ -118,13 +117,13 @@ void appl::widget::BufferList::onCallbackNewBuffer(const etk::String& _value) {
 }
 
 // TODO : Review this callback with the real shared_ptr on the buffer ...
-void appl::widget::BufferList::onCallbackselectNewFile(const etk::String& _value) {
+void appl::widget::BufferList::onCallbackselectNewFile(const ememory::SharedPtr<appl::Buffer>& _buffer) {
 	m_selectedID = -1;
 	for (size_t iii=0; iii<m_list.size(); iii++) {
 		if (m_list[iii].m_buffer == null) {
 			continue;
 		}
-		if (m_list[iii].m_buffer->getFileName() != _value) {
+		if (m_list[iii].m_buffer != _buffer) {
 			continue;
 		}
 		m_selectedID = iii;
@@ -185,7 +184,7 @@ ivec2 appl::widget::BufferList::getMatrixSize() const {
 fluorine::Variant appl::widget::BufferList::getData(int32_t _role, const ivec2& _pos) {
 	switch (_role) {
 		case ewol::widget::ListRole::Text:
-			return m_list[_pos.y()].m_bufferName.getNameFile();;
+			return m_list[_pos.y()].m_bufferName.getFileName();;
 		case ewol::widget::ListRole::FgColor:
 			if (    m_list[_pos.y()].m_buffer != null
 			     && m_list[_pos.y()].m_buffer->isModify() == false) {

@@ -44,11 +44,11 @@ class MainWindows : public ewol::widget::Windows {
 		void displayOpen();
 		void displayProperty();
 	private:
-		void onCallbackPopUpFileSelected(const etk::String& _value);
+		void onCallbackPopUpFileSelected(const etk::Path& _value);
 		void onCallbackTitleUpdate();
 		void onCallbackMenuEvent(const etk::String& _value);
 		void onCallbackShortCut(const etk::String& _value);
-		void onCallbackselectNewFile(const etk::String& _value);
+		void onCallbackselectNewFile(const ememory::SharedPtr<appl::Buffer>& _value);
 };
 
 

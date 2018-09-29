@@ -10,8 +10,9 @@
 
 #include <appl/debug.hpp>
 #include <appl/global.hpp>
-#include <etk/os/FSNode.hpp>
 #include <etk/tool.hpp>
+#include <etk/path/fileSystem.hpp>
+#include <etk/theme/theme.hpp>
 #include <unistd.h>
 //#include <ewol/config.hpp>
 #include <gale/context/commandLine.hpp>
@@ -101,7 +102,6 @@ class MainApplication : public ewol::context::Application {
 			for( int32_t iii=0 ; iii<_context.getCmd().size(); iii++) {
 				etk::String tmpppp = _context.getCmd().get(iii);
 				if (tmpppp.startWith("--ctags=") == true) {
-					etk::FSNode file(tmpppp);
 					etk::String name = tmpppp.extract(8);
 					APPL_INFO("Load ctag file : \"" << name << "\"" );
 					appl::setCtagsFileName(name);
@@ -109,19 +109,16 @@ class MainApplication : public ewol::context::Application {
 				            || tmpppp == "--help") {
 					// nothing to do ...
 				} else {
-					etk::FSNode file(tmpppp);
-					if (file.getNodeType() == etk::typeNode_file) {
-						etk::String name = file.getName();
-						APPL_INFO("need load file : \"" << name << "\"" );
-						m_bufferManager->open(name);
-					} else if (file.getNodeType() == etk::typeNode_folder) {
-						etk::Vector<etk::String> listOfFiles = file.folderGetSub(false, true, ".*");
+					etk::Path file(tmpppp);
+					if (etk::path::isFile(file) == true) {
+						APPL_INFO("need load file : \"" << file << "\"" );
+						m_bufferManager->open(file);
+					} else if (etk::path::isDirectory(file) == true) {
+						etk::Vector<etk::Path> listOfFiles = etk::path::list(file, etk::path::LIST_FILE);
 						for (auto &it: listOfFiles) {
-							etk::FSNode file2(it);
-							if (file2.getNodeType() == etk::typeNode_file) {
-								etk::String name = file2.getName();
-								APPL_INFO("need load file : \"" << name << "\"" );
-								m_bufferManager->open(name);
+							if (etk::path::isFile(it) == true) {
+								APPL_INFO("need load file : \"" << it << "\"" );
+								m_bufferManager->open(it);
 							}
 						}
 					}
@@ -166,7 +163,6 @@ int main(int _argc, const char *_argv[]) {
 	for( int32_t iii=0 ; iii<_argc; iii++) {
 		etk::String tmpppp = _argv[iii];
 		if (tmpppp.startWith("--ctags=") == true) {
-			etk::FSNode file(tmpppp);
 			etk::String name = tmpppp.extract(8);
 			APPL_INFO("Load ctag file : \"" << name << "\"" );
 			appl::setCtagsFileName(name);
