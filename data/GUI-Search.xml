@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sizer mode="hori" expand="true,false" fill="true" lock="true">
 	<button name="[{ID}]SEARCH:close">
-		<image src="THEME:GUI:Remove.svg" fill="true" size="7,7mm"/>
+		<image src="THEME_GUI:///Remove.svg" fill="true" size="7,7mm"/>
 	</button>
 	<entry name="[{ID}]SEARCH:search-entry" expand="true" fill="true"/>
 	<button name="[{ID}]SEARCH:search">
-		<image src="THEME:GUI:Search.svg" fill="true" size="7,7mm"/>
+		<image src="THEME_GUI:///Search.svg" fill="true" size="7,7mm"/>
 	</button>
 	<entry name="[{ID}]SEARCH:replace-entry" expand="true" fill="true"/>
 	<button name="[{ID}]SEARCH:replace">
-		<image src="{ewol}THEME:GUI:Replace.svg" fill="true" size="7,7mm"/>
+		<image src="THEME_GUI:///Replace.svg?lib=ewol" fill="true" size="7,7mm"/>
 	</button>
 	<button name="[{ID}]SEARCH:case" toggle="true">
-		<image src="{ewol}THEME:GUI:CaseSensitive.svg" fill="true" size="7,7mm" hover="_T(Close search bar)"/>
-		<image src="{ewol}THEME:GUI:CaseSensitive.svg" fill="true" size="7,7mm" hover="_T(Close search bar)"/>
+		<image src="THEME_GUI:///CaseSensitive.svg?lib=ewol" fill="true" size="7,7mm" hover="_T(Close search bar)"/>
+		<image src="THEME_GUI:///CaseSensitive.svg?lib=ewol" fill="true" size="7,7mm" hover="_T(Close search bar)"/>
 	</button>
 	<button name="[{ID}]SEARCH:wrap" toggle="true">
-		<image src="{ewol}THEME:GUI:WrapAround.svg" fill="true" size="7,7mm" hover="_T(Close search bar)"/>
-		<image src="{ewol}THEME:GUI:WrapAround.svg" fill="true" size="7,7mm" hover="_T(Close search bar)"/>
+		<image src="THEME_GUI:///WrapAround.svg?lib=ewol" fill="true" size="7,7mm" hover="_T(Close search bar)"/>
+		<image src="THEME_GUI:///WrapAround.svg?lib=ewol" fill="true" size="7,7mm" hover="_T(Close search bar)"/>
 	</button>
 	<button name="[{ID}]SEARCH:up-down" toggle="true">
-		<image src="{ewol}THEME:GUI:Up.svg" fill="true" size="7,7mm" hover="_T(Close search bar)"/>
-		<image src="{ewol}THEME:GUI:Down.svg" fill="true" size="7,7mm" hover="_T(Close search bar)"/>
+		<image src="THEME_GUI:///Up.svg?lib=ewol" fill="true" size="7,7mm" hover="_T(Close search bar)"/>
+		<image src="THEME_GUI:///Down.svg?lib=ewol" fill="true" size="7,7mm" hover="_T(Close search bar)"/>
 	</button>
 </sizer>

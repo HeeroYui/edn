@@ -20,7 +20,7 @@ appl::widget::Search::Search() :
 }
 void appl::widget::Search::init() {
 	ewol::widget::Composer::init();
-	loadFromFile("DATA:GUI-Search.xml", getId());
+	loadFromFile("DATA:///GUI-Search.xml", getId());
 	m_viewerManager = appl::ViewerManager::create();
 	// link event
 	subBind(ewol::widget::Button, "[" + etk::toString(getId()) + "]SEARCH:close",         signalPressed, sharedFromThis(), &appl::widget::Search::OnCallbackHide);

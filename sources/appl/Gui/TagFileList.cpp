@@ -14,7 +14,7 @@ appl::TagFileList::TagFileList() :
 	m_selectedLine = -1;
 	setMouseLimit(1);
 	// Load color properties: (use file list to be generic ...)
-	m_colorProperty = ewol::resource::ColorFile::create("THEME_COLOR://ListFileSystem.json");
+	m_colorProperty = ewol::resource::ColorFile::create("THEME_COLOR:///ListFileSystem.json");
 	if (m_colorProperty != null) {
 		m_colorIdText = m_colorProperty->request("text");
 		m_colorIdBackground1 = m_colorProperty->request("background1");

@@ -27,21 +27,25 @@ void appl::highlightManager::init() {
 	}
 	APPL_DEBUG("HighlightManager  == > INIT");
 	// TODO: Add search in the  etk::Uri uri("DATA_USER://languages/");
-	etk::Uri uri("DATA://languages/");
+	etk::Uri uri("DATA:///languages/");
 	// get the subfolder list:
 	etk::Vector<etk::Uri> list = etk::uri::listRecursive(uri); // TODO: filter only the folder
+	APPL_DEBUG("find " << list.size() << " element(s) in " << uri );
 	for (auto &it: list) {
-		// TODO: etk::uri::isDirectory(it) ==> not implemented ...
-		if (etk::path::isDirectory(it.getPath()) == false) {
+		APPL_DEBUG("    -  " << it );
+		APPL_DEBUG("           " << it.getPath() << "   " << etk::uri::isDirectory(it));
+		if (etk::uri::isDirectory(it) == false) {
 			continue;
 		}
-		ememory::SharedPtr<appl::Highlight> myHightLight = appl::Highlight::create(it.getPath() / "highlight.xml");
+		etk::Uri uriXml = uri;
+		uriXml.setPath(it.getPath() / "highlight.xml");
+		ememory::SharedPtr<appl::Highlight> myHightLight = appl::Highlight::create(uriXml);
 		if (myHightLight != null) {
 			// Check if the language name already exist
 			for (auto &it2 : hlList) {
 				if (    it2 != null
 				     && it2->getTypeName() == myHightLight->getTypeName() ) {
-					APPL_WARNING("LANGUAGE : replace pattern name: '" << myHightLight->getTypeName() << "' with file '" << it.getPath() / "highlight.xml" << "' replace: " << it2->getName());
+					APPL_WARNING("LANGUAGE : replace pattern name: '" << myHightLight->getTypeName() << "' with file '" << uriXml << "' replace: " << it2->getName());
 				}
 			}
 			hlList.pushBack(myHightLight);

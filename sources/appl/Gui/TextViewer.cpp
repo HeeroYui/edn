@@ -38,7 +38,7 @@ appl::TextViewer::TextViewer() :
 	m_viewerManager = appl::ViewerManager::create();
 	
 	// load color properties
-	m_paintingProperties = appl::GlyphPainting::create("THEME:COLOR:textViewer.json");
+	m_paintingProperties = appl::GlyphPainting::create("THEME_COLOR:///textViewer.json");
 	// get all id properties ...
 	m_colorBackground = m_paintingProperties->request("CODE_basicBackgroung");
 	m_colorSpace = m_paintingProperties->request("CODE_space");

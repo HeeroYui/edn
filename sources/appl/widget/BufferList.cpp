@@ -11,23 +11,6 @@
 #include <appl/Gui/MainWindows.hpp>
 #include <ewol/object/Object.hpp>
 
-// TODO : write it better
-static void SortElementList(etk::Vector<appl::dataBufferStruct>& _list) {
-	etk::Vector<appl::dataBufferStruct> tmpList = _list;
-	_list.clear();
-	for(size_t iii=0; iii<tmpList.size(); iii++) {
-		size_t findPos = 0;
-		for(size_t jjj=0; jjj<_list.size(); jjj++) {
-			//EWOL_DEBUG("compare : \""<<*tmpList[iii] << "\" and \"" << *m_listDirectory[jjj] << "\"");
-			if (tmpList[iii].m_bufferName.getFileName() > _list[jjj].m_bufferName.getFileName()) {
-				findPos = jjj+1;
-			}
-		}
-		//EWOL_DEBUG("position="<<findPos);
-		_list.insert(_list.begin()+findPos, tmpList[iii]);
-	}
-}
-
 appl::widget::BufferList::BufferList() :
   m_openOrderMode(false) {
 	addObjectType("appl::BufferList");
@@ -36,7 +19,7 @@ appl::widget::BufferList::BufferList() :
 	// load buffer manager:
 	m_bufferManager = appl::BufferManager::create();
 	// load color properties
-	m_paintingProperties = appl::GlyphPainting::create("THEME:COLOR:bufferList.json");
+	m_paintingProperties = appl::GlyphPainting::create("THEME_COLOR:///bufferList.json");
 	// get all id properties ...
 	m_colorBackground1 = m_paintingProperties->request("backgroung1");
 	m_colorBackground2 = m_paintingProperties->request("backgroung2");
@@ -47,7 +30,7 @@ appl::widget::BufferList::BufferList() :
 
 void appl::widget::BufferList::init() {
 	ewol::widget::List::init();
-	propertyHide.set(true);
+	//propertyHide.set(true);
 	propertyCanFocus.set(true);
 	if (m_bufferManager != null) {
 		m_bufferManager->signalNewBuffer.connect(sharedFromThis(), &appl::widget::BufferList::onCallbackNewBuffer);
@@ -106,6 +89,7 @@ void appl::widget::BufferList::onCallbackNewBuffer(const ememory::SharedPtr<appl
 	} else {
 		insertAlphabetic(tmp);
 	}
+	/*
 	if (m_list.size() <= 1) {
 		propertyHide.set(true);
 		propertySetOnWidgetNamed("appl-Buffer-viewer-separator", "hide", "true");
@@ -113,6 +97,7 @@ void appl::widget::BufferList::onCallbackNewBuffer(const ememory::SharedPtr<appl
 		propertyHide.set(false);
 		propertySetOnWidgetNamed("appl-Buffer-viewer-separator", "hide", "false");
 	}
+	*/
 	markToRedraw();
 }
 
@@ -159,11 +144,13 @@ void appl::widget::BufferList::onCallbackBufferRemoved(const ememory::SharedPtr<
 			++it;
 		}
 	}
+	/*
 	if (m_list.size() <= 1) {
 		propertyHide.set(true);
 	} else {
 		propertyHide.set(false);
 	}
+	*/
 	markToRedraw();
 }
 void appl::widget::BufferList::onCallbackIsSave() {

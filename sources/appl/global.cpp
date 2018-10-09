@@ -11,7 +11,7 @@
 #include <etk/theme/theme.hpp>
 #include <ejson/ejson.hpp>
 
-static etk::Uri g_baseDBName = "USER_DATA://genericConfig.json";
+static etk::Uri g_baseDBName = "USER_DATA:///genericConfig.json";
 
 
 class myParamGlobal : public ewol::Object {
@@ -137,7 +137,7 @@ globals::ParameterGlobalsGui::ParameterGlobalsGui() {
 
 void globals::ParameterGlobalsGui::init() {
 	ewol::widget::Composer::init();
-	loadFromFile("DATA:GUI-Parameter-global.xml", getId());
+	loadFromFile("DATA:///GUI-Parameter-global.xml", getId());
 	
 	propertySetOnWidgetNamed("[" + etk::toString(getId()) + "]appl-param:auto-indent", "value", etk::toString(isSetAutoIndent()));
 	propertySetOnWidgetNamed("[" + etk::toString(getId()) + "]appl-param:display-space-char", "value", etk::toString(isSetDisplaySpaceChar()));

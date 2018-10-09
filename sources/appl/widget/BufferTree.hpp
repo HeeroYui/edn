@@ -23,11 +23,13 @@ namespace appl {
 			  m_buffer(null),
 			  m_isSelected(false),
 			  m_isExpand(_isExpand) {
-				
+				m_haveChild = etk::path::haveChild(_path);
 			}
 			etk::Path m_path;
 			etk::String m_nodeName; // must be here ==> the buffer is optionnal..
 			bool m_isFolder;
+			bool m_haveChildOpen = false;
+			bool m_haveChild = false;
 			ememory::SharedPtr<appl::Buffer> m_buffer;
 			bool m_isSelected = false;
 			bool m_isExpand = false;
@@ -39,6 +41,8 @@ namespace appl {
 		using BufferTreeWeak = ememory::WeakPtr<BufferTree>;
 		
 		class BufferTree : public ewol::widget::TreeView {
+			public:
+				eproperty::Value<bool> propertyShowUnNeeded; //!< Size of the icon.
 			private:
 				ememory::SharedPtr<appl::BufferManager> m_bufferManager; //!< handle on the buffer manager
 			private:
@@ -55,8 +59,11 @@ namespace appl {
 				int32_t m_selectedID;
 				void updateFlatTree();
 				void generateFlatTree();
+				// Recursive update of the child opening or not
+				bool updateChildOpen(ememory::SharedPtr<etk::TreeNode<appl::TreeElement>> _node);
 				etk::Path getRootPath();
 				void populateNodeIfNeeded(ememory::SharedPtr<etk::TreeNode<appl::TreeElement>> _node);
+				void expandToPath(ememory::SharedPtr<etk::TreeNode<appl::TreeElement>> _node, const etk::Path& _path);
 				void goUpper();
 				ememory::SharedPtr<etk::TreeNode<TreeElement>> m_tree;
 				etk::FlatTree<TreeElement> m_flatTree;
@@ -87,6 +94,7 @@ namespace appl {
 				void onSelectBuffer(const ememory::SharedPtr<appl::Buffer>& _buffer);
 				void onRemoveBuffer(const ememory::SharedPtr<appl::Buffer>& _buffer);
 				void calculateMinMaxSize() override;
+				void onChangePropertyShowUnNeeded();
 		};
 	}
 }

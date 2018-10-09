@@ -14,10 +14,13 @@
 #include <appl/BufferManager.hpp>
 #include <appl/Gui/Search.hpp>
 #include <appl/Gui/ViewerManager.hpp>
+
 class MainWindows : public ewol::widget::Windows {
 	private:
 		ewol::widget::LabelShared m_widgetLabelFileName;
 		appl::widget::SearchShared m_widgetSearch;
+		ewol::WidgetShared m_viewTree;
+		ewol::WidgetShared m_viewBuffer;
 		esignal::Connection m_connectionSave;
 		esignal::Connection m_connectionModify;
 		esignal::Connection m_connectionSaveName;

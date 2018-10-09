@@ -99,8 +99,6 @@ void MainWindows::init() {
 	ewol::widget::SizerShared mySizerHori;
 	ememory::SharedPtr<appl::TextViewer> myTextView;
 	ememory::SharedPtr<appl::TextViewer> myTextView2;
-	appl::widget::BufferListShared myBufferList;
-	appl::widget::BufferTreeShared myBufferTree;
 	ewol::widget::MenuShared myMenu;
 	
 	// load buffer manager:
@@ -115,28 +113,29 @@ void MainWindows::init() {
 		mySizerHori->propertyName.set("plop 222222222");
 		mySizerHori->propertyMode.set(ewol::widget::Sizer::modeHori);
 		mySizerVert->subWidgetAdd(mySizerHori);
-			if (false) {
-				myBufferList = appl::widget::BufferList::create();
-				myBufferList->propertyName.set("plop 3333333");
-				myBufferList->propertyExpand.set(bvec2(false,true));
-				myBufferList->propertyFill.set(bvec2(true,true));
-				//myBufferList->propertyMinSize.set(gale::Dimension(vec2(300,2), gale::distance::pixel));
-				mySizerHori->subWidgetAdd(myBufferList);
-			} else {
-				myBufferTree = appl::widget::BufferTree::create();
-				myBufferTree->propertyName.set("plop 3333333");
-				myBufferTree->propertyExpand.set(bvec2(false,true));
-				myBufferTree->propertyFill.set(bvec2(true,true));
-				myBufferTree->propertyMinSize.set(gale::Dimension(vec2(300,2), gale::distance::pixel));
-				mySizerHori->subWidgetAdd(myBufferTree);
-			}
+			
+			m_viewBuffer = appl::widget::BufferList::create();
+			m_viewBuffer->propertyName.set("appl-buffer-view");
+			m_viewBuffer->propertyExpand.set(bvec2(false,true));
+			m_viewBuffer->propertyFill.set(bvec2(true,true));
+			//m_viewBuffer->propertyMinSize.set(gale::Dimension(vec2(300,2), gale::distance::pixel));
+			mySizerHori->subWidgetAdd(m_viewBuffer);
+			
+			m_viewTree = appl::widget::BufferTree::create();
+			m_viewTree->propertyHide.set(true);
+			m_viewTree->propertyName.set("appl-tree-view");
+			m_viewTree->propertyExpand.set(bvec2(false,true));
+			m_viewTree->propertyFill.set(bvec2(true,true));
+			m_viewTree->propertyMinSize.set(gale::Dimension(vec2(300,2), gale::distance::pixel));
+			mySizerHori->subWidgetAdd(m_viewTree);
+			
 			ewol::widget::SpacerShared mySpacer = ewol::widget::Spacer::create();
 			mySpacer->propertyName.set("appl-Buffer-viewer-separator");
 			mySpacer->propertyColor.set(etk::color::black);
 			mySpacer->propertyMinSize.set(gale::Dimension(vec2(2,2), gale::distance::pixel));
 			mySpacer->propertyExpand.set(bvec2(false,true));
 			mySpacer->propertyFill.set(bvec2(true,true));
-			mySpacer->propertyHide.set(true);
+			//mySpacer->propertyHide.set(true);
 			mySizerHori->subWidgetAdd(mySpacer);
 			
 			mySizerVert2 = ewol::widget::Sizer::create();
@@ -188,27 +187,32 @@ void MainWindows::init() {
 			int32_t idMenuFile = myMenu->addTitle("_T{File}");
 				myMenu->add(idMenuFile, "_T{New}",          "", "menu:new");
 				myMenu->addSpacer(idMenuFile);
-				myMenu->add(idMenuFile, "_T{Open}",         "THEME:GUI:Load.svg", "menu:open");
-				myMenu->add(idMenuFile, "_T{Close}",        "THEME:GUI:Close.svg", "menu:close");
+				myMenu->add(idMenuFile, "_T{Open}",         "THEME_GUI:///Load.svg", "menu:open");
+				myMenu->add(idMenuFile, "_T{Close}",        "THEME_GUI:///Close.svg", "menu:close");
 				myMenu->add(idMenuFile, "_T{Close (all)}",  "", "menu:close-all");
-				myMenu->add(idMenuFile, "_T{Save}",         "THEME:GUI:Save.svg", "menu:save");
+				myMenu->add(idMenuFile, "_T{Save}",         "THEME_GUI:///Save.svg", "menu:save");
 				myMenu->add(idMenuFile, "_T{Save As ...}",  "", "menu:save-as");
 				myMenu->addSpacer(idMenuFile);
-				myMenu->add(idMenuFile, "_T{Properties}",   "THEME:GUI:Parameter.svg", "menu:property");
+				myMenu->add(idMenuFile, "_T{Properties}",   "THEME_GUI:///Parameter.svg", "menu:property");
 				myMenu->addSpacer(idMenuFile);
 				myMenu->add(idMenuFile, "_T{Exit}",   "", "menu:exit");
 			int32_t idMenuEdit = myMenu->addTitle("_T{Edit}");
 				myMenu->add(idMenuEdit, "_T{Goto line ...}","", "menu:goto-line");
 			myMenu->addSpacer();
 			int32_t idMenuSearch = myMenu->addTitle("_T{Search}");
-				myMenu->add(idMenuSearch, "_T{Search}",         "THEME:GUI:Search.svg", "menu:search");
-				myMenu->add(idMenuSearch, "_T{Replace}",        "THEME:GUI:Replace.svg", "menu:replace");
+				myMenu->add(idMenuSearch, "_T{Search}",         "THEME_GUI:///Search.svg", "menu:search");
+				myMenu->add(idMenuSearch, "_T{Replace}",        "THEME_GUI:///Replace.svg", "menu:replace");
 				myMenu->addSpacer(idMenuSearch);
 				myMenu->add(idMenuSearch, "_T{Find (previous)}","", "menu:find:previous");
 				myMenu->add(idMenuSearch, "_T{Find (next)}",    "", "menu:find:next");
 				myMenu->add(idMenuSearch, "_T{Find (all)}",     "", "menu:find:all");
 				myMenu->add(idMenuSearch, "_T{Un-Select}",      "", "menu:find:none");
 			int32_t idMenugDisplay = myMenu->addTitle("_T{Display}");
+				myMenu->add(idMenugDisplay, "_T{Tree view}",                 "", "menu:view:tree");
+				myMenu->add(idMenugDisplay, "_T{Buffer view}",               "", "menu:view:buffer");
+				myMenu->add(idMenugDisplay, "_T{Tree view: Show un-needed}", "", "menu:view:tree:ShowUnneeded");
+				myMenu->add(idMenugDisplay, "_T{Tree view: Hide un-needed}", "", "menu:view:tree:HideUnneeded");
+				myMenu->addSpacer(idMenugDisplay);
 				myMenu->add(idMenugDisplay, "_T{Color Black}",          "", "menu:color:color/black/");
 				myMenu->add(idMenugDisplay, "_T{Color White}",          "", "menu:color:color/white/");
 				myMenu->add(idMenugDisplay, "_T{Shape square}",         "", "menu:shape:shape/square/");
@@ -229,6 +233,8 @@ void MainWindows::init() {
 			mySizerHori->subWidgetAdd(m_widgetLabelFileName);
 	
 	// add generic shortcut ...
+	shortCutAdd("ctrl+b",       "menu:view:toggle");
+	
 	shortCutAdd("ctrl+o",       "menu:open");
 	shortCutAdd("ctrl+n",       "menu:new");
 	
@@ -321,6 +327,19 @@ void MainWindows::onCallbackMenuEvent(const etk::String& _value) {
 				m_widgetSearch->selectReplace();
 			}
 		}
+	} else if (_value == "menu:view:buffer") {
+		m_viewTree->propertyHide.set(true);
+		m_viewBuffer->propertyHide.set(false);
+	} else if (_value == "menu:view:tree") {
+		m_viewTree->propertyHide.set(false);
+		m_viewBuffer->propertyHide.set(true);
+	} else if (_value == "menu:view:toggle") {
+		m_viewTree->propertyHide.set(m_viewTree->propertyHide.get() == false);
+		m_viewBuffer->propertyHide.set(m_viewBuffer->propertyHide.get() == false);
+	} else if (_value == "menu:view:tree:ShowUnneeded") {
+		propertySetOnWidgetNamed("appl-tree-view", "show-un-needed", "true");
+	} else if (_value == "menu:view:tree:HideUnneeded") {
+		propertySetOnWidgetNamed("appl-tree-view", "show-un-needed", "false");
 	} else if (_value == "menu:find:previous") {
 		APPL_TODO("Event from Menu : " << _value);
 	} else if (_value == "menu:find:next") {

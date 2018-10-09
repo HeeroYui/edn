@@ -31,7 +31,7 @@ namespace appl {
 		public:
 			// Constructeur
 			Highlight();
-			void init(const etk::Uri& _uriXML, const etk::Uri& _uriColorFile = "THEME_COLOR://textViewer.json");
+			void init(const etk::Uri& _uriXML, const etk::Uri& _uriColorFile = "THEME_COLOR:///textViewer.json");
 		public:
 			DECLARE_RESOURCE_URI_FACTORY(Highlight);
 			virtual ~Highlight();
