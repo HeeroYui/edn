@@ -29,7 +29,8 @@
 		{ name:"functionName", foreground:"#09857e", bold:true},
 		{ name:"functionNamePrivate", foreground:"#09854e", bold:true},
 		{ name:"TestResultOK", foreground:"#000000", background:"#009c00", bold:true},
-		{ name:"TestResultERROR", foreground:"#000000", background:"#c20000", bold:true}
+		{ name:"TestResultERROR", foreground:"#000000", background:"#c20000", bold:true},
+		{ name:"TestResultTODO", foreground:"#000000", background:"#bf3e00", bold:true},
 
 		{ name:"doxygen-key-known", foreground:"#Fc4700", bold:true, italic:false},
 		{ name:"doxygen-key", foreground:"#dc3700", bold:true, italic:false},

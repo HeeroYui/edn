@@ -90,7 +90,11 @@
 		</rule>
 		<rule name="etk type">
 			<color>type</color>
-			<regex>\@etk::(Vector|Array|List|Function|String|UString|RegEx|Pair|NullPtr|Color|Exception|exception::(InvalidArgument|DomainError|LengthError|OutOfRange|RangeError|OverflowError|UnderflowError|CastError|AllocationError|RuntimeError))\@</regex>
+			<regex>\@etk::(Map|Set|Path|Uri|Vector|Array|List|Function|String|UString|RegEx|Pair|NullPtr|Color|Exception|exception::(InvalidArgument|DomainError|LengthError|OutOfRange|RangeError|OverflowError|UnderflowError|CastError|AllocationError|RuntimeError))\@</regex>
+		</rule>
+		<rule name="ememory type">
+			<color>type</color>
+			<regex>\@ememory::(SharedPtr|WeakPtr|EnableSharedFromThis|Counter|RefCounter|RefPtr|UniquePtr)\@</regex>
 		</rule>
 		<rule name="my storage keyword">
 			<color>storageKeyword</color>
@@ -98,7 +102,7 @@
 		</rule>
 		<rule name="my common Define">
 			<color>commonDefine</color>
-			<regex>\@nullptr|__(LINE|DATA|FILE|func|TIME|STDC|PRETTY_FUNCTION|FUNCTION)__\@</regex>
+			<regex>\@nullptr|null|__(LINE|DATA|FILE|func|TIME|STDC|PRETTY_FUNCTION|FUNCTION)__\@</regex>
 		</rule>
 		<rule name="numeric constant">
 			<color>number</color>

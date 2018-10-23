@@ -18,19 +18,19 @@
 		</rule>
 		<rule name="documantation">
 			<color>commentDoxygen</color>
-			<regex>#.*</regex>
+			<regex>#.*$</regex>
 			<sub>docparse</sub>
 		</rule>
 		<rule name="inline comment">
 			<color>comment</color>
-			<regex>//.*</regex>
+			<regex>//.*$</regex>
 			<sub>TODO</sub>
 		</rule>
 	</pass1>
 	<pass2> <!-- Parse on display data ==> nor regenerate every display but every time modification apear -->
 		<rule name="my type">
 			<color>type</color>
-			<regex>\@import|void|bool|string|int(8|16|32|64)|uint(8|16|32|64)|float(32|64)|vector:(bool|string|int(8|16|32|64)|uint(8|16|32|64)|float(32|64))|time|duration|file|stream\@</regex>
+			<regex>\@import|void|bool|path|uri|string|int(8|16|32|64)|uint(8|16|32|64)|float(32|64)|vector:(bool|string|int(8|16|32|64)|uint(8|16|32|64)|float(32|64))|time|duration|file|stream\@</regex>
 		</rule>
 		<rule name="numeric constant">
 			<color>number</color>

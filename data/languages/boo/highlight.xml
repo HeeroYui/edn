@@ -34,15 +34,19 @@
 		</rule>
 		<rule name="Résultat OK">
 			<color>TestResultOK</color>
-			<regex>\[( )*(OK|Ok|ok)( )*\]</regex>
+			<regex>\[(\t| )*(OK|Ok|ok|DONE|Done|done)(\t| )*\]</regex>
 		</rule>
 		<rule name="resultat en erreur">
 			<color>TestResultERROR</color>
-			<regex>\[(ERREUR|Erreur|erreur)\]</regex>
+			<regex>\[(\t| )*(ERREUR|Erreur|erreur)(\t| )*\]</regex>
+		</rule>
+		<rule name="to do">
+			<color>TestResultTODO</color>
+			<regex>\[(\t| )*(TODO|Todo|todo)(\t| )*\]</regex>
 		</rule>
 		<rule name="resultat vide">
 			<color>number</color>
-			<regex>\[( )*\]</regex>
+			<regex>\[(\t| )*\]</regex>
 		</rule>
 		<rule name="notes ... ">
 			<color>macro</color>
