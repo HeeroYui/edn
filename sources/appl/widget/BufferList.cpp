@@ -134,7 +134,7 @@ void appl::widget::BufferList::onCallbackChangeName() {
 }
 
 void appl::widget::BufferList::onCallbackBufferRemoved(const ememory::SharedPtr<appl::Buffer>& _buffer) {
-	APPL_ERROR("request remove buffer:");
+	APPL_DEBUG("request remove buffer:");
 	auto it = m_list.begin();
 	while (it != m_list.end()) {
 		if (it->m_buffer == _buffer) {
@@ -180,7 +180,7 @@ fluorine::Variant appl::widget::BufferList::getData(int32_t _role, const ivec2& 
 				return (*m_paintingProperties)[m_colorTextModify].getForeground();
 			}
 		case ewol::widget::ListRole::BgColor:
-			APPL_ERROR( m_colorBackground1 << " => " << (*m_paintingProperties)[m_colorBackground1].getForeground());
+			APPL_VERBOSE( m_colorBackground1 << " => " << (*m_paintingProperties)[m_colorBackground1].getForeground());
 			if (m_selectedID == _pos.y()) {
 				return (*m_paintingProperties)[m_colorBackgroundSelect].getForeground();
 			}
@@ -198,12 +198,12 @@ fluorine::Variant appl::widget::BufferList::getData(int32_t _role, const ivec2& 
 bool appl::widget::BufferList::onItemEvent(const ewol::event::Input& _event, const ivec2& _pos, const vec2& _mousePosition) {
 	if (    _event.getId() == 1
 	     && _event.getStatus() == gale::key::status::pressSingle) {
-		APPL_INFO("Event on List: " << _event << " pos=" << _pos );
+		APPL_VERBOSE("Event on List: " << _event << " pos=" << _pos );
 		if(    _pos.y() >= 0
 		    && _pos.y() < (int64_t)m_list.size()) {
 			if (m_list[_pos.y()].m_buffer != null) {
 				if (m_bufferManager != null) {
-					APPL_INFO("Select file: '" << m_list[_pos.y()].m_buffer->getFileName() << "' in list");
+					APPL_VERBOSE("Select file: '" << m_list[_pos.y()].m_buffer->getFileName() << "' in list");
 					m_bufferManager->open(m_list[_pos.y()].m_buffer->getFileName());
 				}
 				return true;

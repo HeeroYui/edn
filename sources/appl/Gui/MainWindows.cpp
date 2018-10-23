@@ -115,6 +115,7 @@ void MainWindows::init() {
 		mySizerVert->subWidgetAdd(mySizerHori);
 			
 			m_viewBuffer = appl::widget::BufferList::create();
+			m_viewBuffer->propertyHide.set(true);
 			m_viewBuffer->propertyName.set("appl-buffer-view");
 			m_viewBuffer->propertyExpand.set(bvec2(false,true));
 			m_viewBuffer->propertyFill.set(bvec2(true,true));
@@ -122,8 +123,8 @@ void MainWindows::init() {
 			mySizerHori->subWidgetAdd(m_viewBuffer);
 			
 			m_viewTree = appl::widget::BufferTree::create();
-			m_viewTree->propertyHide.set(true);
 			m_viewTree->propertyName.set("appl-tree-view");
+			//m_viewTree->propertyHide.set(true);
 			m_viewTree->propertyExpand.set(bvec2(false,true));
 			m_viewTree->propertyFill.set(bvec2(true,true));
 			m_viewTree->propertyMinSize.set(gale::Dimension(vec2(300,2), gale::distance::pixel));
@@ -247,7 +248,7 @@ void MainWindows::init() {
 	shortCutAdd("ctrl+l",       "menu:goto-line");
 	
 	shortCutAdd("ctrl+f",       "menu:search");
-	shortCutAdd("F12",          "menu:reloade-shader");
+	shortCutAdd("alt+F12",      "menu:reloade-shader");
 	shortCutAdd("alt+F4",       "menu:exit");
 	// TODO : auto-connect on shortcut event ==> maybe do beter later ...
 	signalShortcut.connect(sharedFromThis(), &MainWindows::onCallbackShortCut);

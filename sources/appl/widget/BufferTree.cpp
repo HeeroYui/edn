@@ -15,7 +15,7 @@
 
 appl::widget::BufferTree::BufferTree() :
   propertyShowUnNeeded(this, "show-un-needed",
-                             false,
+                             true,
                              "show element that is not open",
                              &appl::widget::BufferTree::onChangePropertyShowUnNeeded),
   m_openOrderMode(false) {
@@ -53,9 +53,14 @@ void appl::widget::BufferTree::init() {
 
 static etk::String getCommonPathPart(const etk::Path& _left, const etk::Path& _right) {
 	etk::String out;
-	for (size_t iii=0; iii < etk::min(_left.getString().size(), _right.getString().size()); ++iii) {
-		if (_left.getString()[iii] == _right.getString()[iii]) {
-			out += _left.getString()[iii];
+	etk::String left = _left.getString() + "/";
+	etk::String right = _right.getString() + "/";
+	APPL_VERBOSE("Common Part:");
+	APPL_VERBOSE("    _left  = " << left);
+	APPL_VERBOSE("    _right = " << right);
+	for (size_t iii=0; iii < etk::min(left.size(), right.size()); ++iii) {
+		if (left[iii] == right[iii]) {
+			out += left[iii];
 			continue;
 		}
 		break;
@@ -64,6 +69,10 @@ static etk::String getCommonPathPart(const etk::Path& _left, const etk::Path& _r
 	if (pos != etk::String::npos) {
 		out = out.extract(0, pos);
 	}
+	if (out.isEmpty() == true) {
+		out = "/";
+	}
+	APPL_VERBOSE("    out    = " << out);
 	return out;
 }
 
@@ -98,9 +107,9 @@ void appl::widget::BufferTree::populateNodeIfNeeded(ememory::SharedPtr<etk::Tree
 	}
 	etk::Vector<etk::Path> child = etk::path::list(value.m_path, etk::path::LIST_FOLDER|etk::path::LIST_FILE);
 	etk::algorithm::quickSort(child, localSort);
-	APPL_ERROR("    nbChilds: " << child.size() << " for path: " << value.m_path);
+	APPL_VERBOSE("    nbChilds: " << child.size() << " for path: " << value.m_path);
 	for (auto& it: child) {
-		APPL_ERROR("add element: " << it);
+		APPL_VERBOSE("add element: " << it);
 		auto elem = etk::TreeNode<appl::TreeElement>::create(TreeElement(it, false));
 		_node->addChild(elem);
 		// TODO: ETK_FREE(etk::FSNode, it);
@@ -108,7 +117,7 @@ void appl::widget::BufferTree::populateNodeIfNeeded(ememory::SharedPtr<etk::Tree
 }
 
 void appl::widget::BufferTree::goUpper() {
-	APPL_ERROR("Go upper ...");
+	APPL_VERBOSE("Go upper ...");
 	if (m_tree == null) {
 		generateFlatTree();
 		return;
@@ -240,34 +249,47 @@ etk::Path appl::widget::BufferTree::getRootPath() {
 		etk::Path nodeName = it->getFileName();
 		if (upperParent.isEmpty() == true) {
 			upperParent = nodeName.getParent();
-			APPL_ERROR("init root: " << nodeName << " root=" << upperParent);
+			APPL_DEBUG("init root: " << nodeName << " root=" << upperParent);
 			continue;
 		}
 		upperParent = getCommonPathPart(upperParent, nodeName.getParent());
-		APPL_ERROR("Update: " << nodeName << "   " << nodeName.getParent() << "    root=" << upperParent);
+		APPL_DEBUG("Update: " << nodeName << "   " << nodeName.getParent() << "    root=" << upperParent);
 	}
 	if (upperParent == "") {
-		APPL_ERROR("Nothing find ==> get home path...");
+		APPL_DEBUG("Nothing find ==> get home path...");
 		upperParent = etk::path::getHomePath();
 	}
-	APPL_ERROR("update tree: " << upperParent);
+	APPL_DEBUG("update tree: " << upperParent);
 	return upperParent;
 }
 
 void appl::widget::BufferTree::onNewBuffer(const ememory::SharedPtr<appl::Buffer>& _buffer) {
 	APPL_INFO("New Buffer open: '" << _buffer->getFileName() << "'");
+	ememory::SharedPtr<appl::Buffer> buffer = _buffer;
+	buffer->signalIsSave.connect(sharedFromThis(), &appl::widget::BufferTree::onCallbackIsSave);
+	buffer->signalIsModify.connect(sharedFromThis(), &appl::widget::BufferTree::onCallbackIsModify);
+	buffer->signalChangeName.connect(sharedFromThis(), &appl::widget::BufferTree::onCallbackChangeName);
 	if (m_tree == null) {
 		generateFlatTree();
 	} else {
 		etk::Path rootPath = getRootPath();
-		while (rootPath != m_tree->getData().m_path ) {
-			APPL_ERROR("rootPath=" << rootPath << "  !=  " << m_tree->getData().m_path);
-			goUpper();
+		APPL_VERBOSE("=============================================================================================================");
+		APPL_VERBOSE("== file: " << _buffer->getFileName());
+		APPL_VERBOSE("== root: " << rootPath);
+		APPL_VERBOSE("== tree: " << m_tree->getData().m_path);
+		APPL_VERBOSE("=============================================================================================================");
+		if (rootPath.getString().startWith(m_tree->getData().m_path.getString()) == false) {
+			APPL_VERBOSE("    ==> not contained");
+			while (    rootPath != m_tree->getData().m_path
+			        && m_tree->getData().m_path.getString() != "/") {
+				APPL_VERBOSE("rootPath=" << rootPath << "  !=  " << m_tree->getData().m_path);
+				goUpper();
+			}
 		}
 	}
 	expandToPath(m_tree, _buffer->getFileName());
 	auto listElements = m_tree->findIf([&](const etk::TreeNode<TreeElement>& _node) {
-	    	APPL_WARNING("Compare : '" << _node.getData().m_path << "' =?= '" << _buffer->getFileName() << "'");
+	    	APPL_VERBOSE("Compare : '" << _node.getData().m_path << "' =?= '" << _buffer->getFileName() << "'");
 	    	if (_node.getData().m_path == _buffer->getFileName()) {
 	    		return true;
 	    	}
@@ -278,32 +300,7 @@ void appl::widget::BufferTree::onNewBuffer(const ememory::SharedPtr<appl::Buffer
 	} else {
 		listElements[0]->getData().m_buffer = _buffer;
 	}
-	
 	updateFlatTree();
-	/*
-	ememory::SharedPtr<appl::Buffer> buffer = m_bufferManager->get(_value);
-	if (buffer == null) {
-		APPL_ERROR("event on element nor exist : " << _value);
-		return;
-	}
-	buffer->signalIsSave.connect(sharedFromThis(), &BufferTree::onCallbackIsSave);
-	buffer->signalIsModify.connect(sharedFromThis(), &BufferTree::onCallbackIsModify);
-	buffer->signalChangeName.connect(sharedFromThis(), &BufferTree::onCallbackChangeName);
-	appl::dataBufferStruct tmp(_value, buffer);
-	if (m_openOrderMode == true) {
-		m_list.pushBack(tmp);
-	} else {
-		insertAlphabetic(tmp);
-	}
-	if (m_list.size() <= 1) {
-		propertyHide.set(true);
-		propertySetOnWidgetNamed("appl-Buffer-viewer-separator", "hide", "true");
-	} else {
-		propertyHide.set(false);
-		propertySetOnWidgetNamed("appl-Buffer-viewer-separator", "hide", "false");
-	}
-	markToRedraw();
-	*/
 }
 
 void appl::widget::BufferTree::onSelectBuffer(const ememory::SharedPtr<appl::Buffer>& _buffer) {
@@ -344,7 +341,7 @@ void appl::widget::BufferTree::onCallbackChangeName() {
 }
 
 void appl::widget::BufferTree::onRemoveBuffer(const ememory::SharedPtr<appl::Buffer>& _buffer) {
-	APPL_ERROR("request remove buffer:");
+	APPL_DEBUG("request remove buffer:");
 	auto elem = m_tree->findIf([&](const etk::TreeNode<TreeElement>& _element) {
 	    	if (_element.getData().m_buffer == _buffer) {
 	    		return true;
@@ -375,7 +372,7 @@ ivec2 appl::widget::BufferTree::getMatrixSize() const {
 }
 
 void appl::widget::BufferTree::onItemExpandEvent(const ivec2& _pos) {
-	APPL_WARNING("Event on expand on " << _pos);
+	APPL_DEBUG("Event on expand on " << _pos);
 	m_flatTree[_pos.y()]->getData().m_isExpand = m_flatTree[_pos.y()]->getData().m_isExpand?false:true;
 	updateFlatTree();
 }
@@ -392,7 +389,7 @@ fluorine::Variant appl::widget::BufferTree::getData(int32_t _role, const ivec2& 
 				return (*m_paintingProperties)[m_colorTextNormal].getForeground();
 			}
 			if (value.m_buffer == null) {
-				//APPL_ERROR( m_colorBackgroundHide << " => " << (*m_paintingProperties)[m_colorBackgroundHide].getForeground());
+				APPL_VERBOSE( m_colorBackgroundHide << " => " << (*m_paintingProperties)[m_colorBackgroundHide].getForeground());
 				return (*m_paintingProperties)[m_colorTextNotOpen].getForeground();
 			}
 			if (value.m_buffer->isModify() == false) {
@@ -401,7 +398,7 @@ fluorine::Variant appl::widget::BufferTree::getData(int32_t _role, const ivec2& 
 			return (*m_paintingProperties)[m_colorTextModify].getForeground();
 		case ewol::widget::ListRole::BgColor:
 			//return fluorine::Variant();
-			//APPL_ERROR( m_colorBackground1 << " => " << (*m_paintingProperties)[m_colorBackground1].getForeground());
+			APPL_VERBOSE( m_colorBackground1 << " => " << (*m_paintingProperties)[m_colorBackground1].getForeground());
 			if (    value.m_buffer == m_selection
 			     && m_selection != null) {
 				return (*m_paintingProperties)[m_colorBackgroundSelect].getForeground();
@@ -457,7 +454,7 @@ bool appl::widget::BufferTree::onItemEvent(const ewol::event::Input& _event, con
 				return true;
 			} else if (value.m_buffer == null) {
 				if (m_bufferManager != null) {
-					APPL_INFO("Select file: '" << value.m_path << "' in list");
+					APPL_VERBOSE("Select file: '" << value.m_path << "' in list");
 					m_bufferManager->open(value.m_path);
 					value.m_buffer = m_bufferManager->get(value.m_path);
 				}
@@ -465,10 +462,10 @@ bool appl::widget::BufferTree::onItemEvent(const ewol::event::Input& _event, con
 			}
 		}
 		if (_event.getStatus() == gale::key::status::pressSingle) {
-			APPL_INFO("Event on List: " << _event << " pos=" << _pos );
+			APPL_VERBOSE("Event on List: " << _event << " pos=" << _pos );
 			if (value.m_buffer != null) {
 				if (m_bufferManager != null) {
-					APPL_INFO("Select file: '" << value.m_path << "' in list");
+					APPL_VERBOSE("Select file: '" << value.m_path << "' in list");
 					m_bufferManager->open(value.m_path);
 				}
 				return true;
