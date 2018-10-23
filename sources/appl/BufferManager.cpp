@@ -115,19 +115,20 @@ bool appl::BufferManager::exist(const etk::Path& _fileName) {
 }
 
 void appl::BufferManager::open(const etk::Path& _fileName) {
-	if (exist(_fileName) == true) {
-		APPL_WARNING(" the element '" << _fileName << "' already exist ... just reselect it ...");
-		signalSelectFile.emit(get(_fileName));
-		propertySetOnWidgetNamed("appl-widget-display-name", "value", _fileName.getString());
+	etk::Path fileName = _fileName.getAbsolute();
+	if (exist(fileName) == true) {
+		APPL_WARNING(" the element '" << fileName << "' already exist ... just reselect it ...");
+		signalSelectFile.emit(get(fileName));
+		propertySetOnWidgetNamed("appl-widget-display-name", "value", fileName.getString());
 		return;
 	}
-	auto value = get(_fileName, true);
+	auto value = get(fileName, true);
 	if (value == null) {
-		APPL_ERROR("Error get '" << _fileName << "' ... ");
+		APPL_ERROR("Error get '" << fileName << "' ... ");
 		return;
 	}
 	signalSelectFile.emit(value);
-	propertySetOnWidgetNamed("appl-widget-display-name", "value", _fileName.getString());
+	propertySetOnWidgetNamed("appl-widget-display-name", "value", fileName.getString());
 }
 
 void appl::BufferManager::requestDestroyFromChild(const ememory::SharedPtr<Object>& _child) {
