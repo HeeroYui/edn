@@ -26,6 +26,7 @@
 #include <appl/ctags/readtags.hpp>
 #include <appl/globalMsg.hpp>
 #include <appl/TextPluginCtags.hpp>
+#include <appl/debug.hpp>
 
 class MainApplication : public ewol::context::Application {
 	private:
@@ -38,8 +39,8 @@ class MainApplication : public ewol::context::Application {
 				etk::String tmpppp = _context.getCmd().get(iii);
 				if (    tmpppp == "-h"
 				     || tmpppp == "--help") {
-					APPL_INFO("  --ctags=xxx c-flags-file-name" );
-					APPL_INFO("  -h/--help display this help" );
+					APPL_PRINT("  --ctags=xxx c-flags-file-name" );
+					APPL_PRINT("  -h/--help display this help" );
 					exit(0);
 				} 
 			}

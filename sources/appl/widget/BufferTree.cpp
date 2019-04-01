@@ -102,7 +102,42 @@ void appl::widget::BufferTree::populateNodeIfNeeded(ememory::SharedPtr<etk::Tree
 		return;
 	}
 	if (_node->haveChild() == true) {
-		// already populated...
+		// already populated... ==> updat list of elements: ...
+		etk::Vector<etk::Path> child = etk::path::list(value.m_path, etk::path::LIST_FOLDER|etk::path::LIST_FILE);
+		etk::algorithm::quickSort(child, localSort);
+		APPL_VERBOSE("    nbChilds: " << child.size() << " for path: " << value.m_path);
+		// Add missing element (at the end ...)
+		for (auto& it: child) {
+			bool find = false;
+			for (auto &nodeIt: _node->getChilds()) {
+				if (nodeIt->getData().m_path == it) {
+					find = true;
+					break;
+				}
+			}
+			if (find == false) {
+				auto elem = etk::TreeNode<appl::TreeElement>::create(TreeElement(it, false));
+				_node->addChild(elem);
+			}
+		}
+		// remove destroyed elements:
+		
+		size_t iii = 0;
+		while (iii < _node->getChilds().size()) {
+			auto node = _node->getChilds()[iii];
+			bool find = false;
+			for (auto& it: child) {
+				if (node->getData().m_path == it) {
+					find = true;
+					break;
+				}
+			}
+			if (find == false) {
+				_node->rmChild(node);
+			} else {
+				++iii;
+			}
+		}
 		return;
 	}
 	etk::Vector<etk::Path> child = etk::path::list(value.m_path, etk::path::LIST_FOLDER|etk::path::LIST_FILE);
@@ -112,7 +147,6 @@ void appl::widget::BufferTree::populateNodeIfNeeded(ememory::SharedPtr<etk::Tree
 		APPL_VERBOSE("add element: " << it);
 		auto elem = etk::TreeNode<appl::TreeElement>::create(TreeElement(it, false));
 		_node->addChild(elem);
-		// TODO: ETK_FREE(etk::FSNode, it);
 	}
 }
 
