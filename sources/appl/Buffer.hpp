@@ -287,6 +287,7 @@ namespace appl {
 					friend class Buffer;
 			};
 		public: // signals
+			esignal::Signal<> signalFileIsModify;
 			esignal::Signal<> signalIsModify;
 			esignal::Signal<> signalIsSave;
 			esignal::Signal<> signalSelectChange;
@@ -297,6 +298,15 @@ namespace appl {
 		public:
 			DECLARE_FACTORY(Buffer);
 			virtual ~Buffer();
+		private:
+			bool m_fileIsModify = false; //!< The file has been modify and the buffer is not synchronous
+		public:
+			/**
+			 * @brief get the curent filename of the Buffer
+			 */
+			bool getFileModify() const {
+				return m_fileIsModify;
+			}
 		private:
 			bool m_hasFileName; //!< When new file, the buffer has no name ==> but it might be reference with a single name ...
 			etk::Path m_fileName; //!< name of the file (with his path)

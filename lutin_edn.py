@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import lutin.module as module
 import lutin.tools as tools
-import lutin.debug as debug
+import realog.debug as debug
 import os
 
 def get_type():

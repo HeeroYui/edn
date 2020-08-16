@@ -5,6 +5,9 @@
  */
 #include <etk/types.hpp>
 #include <etk/stdTools.hpp>
+#include <etk/system.hpp>
+#include <etk/path/fileSystem.hpp>
+
 #include <appl/Buffer.hpp>
 #include <appl/debug.hpp>
 #include <gale/context/clipBoard.hpp>
@@ -108,6 +111,7 @@ appl::Buffer::Iterator appl::Buffer::selectStop() {
 }
 
 appl::Buffer::Buffer() :
+  signalFileIsModify(this, "file-is-modify", ""),
   signalIsModify(this, "is-modify", ""),
   signalIsSave(this, "is-save", ""),
   signalSelectChange(this, "select-change", ""),
@@ -146,6 +150,7 @@ bool appl::Buffer::loadFile(const etk::Path& _name) {
 		countNumberofLine();
 		tryFindHighlightType();
 		m_isModify = false;
+		m_fileIsModify = false;
 		return true;
 	}
 	return false;
@@ -165,6 +170,31 @@ void appl::Buffer::setFileName(const etk::Path& _name) {
 bool appl::Buffer::storeFile() {
 	if (m_data.dumpIn(m_fileName) == true) {
 		APPL_INFO("saving file : " << m_fileName);
+		etk::String extention = m_fileName.getExtention();
+		if (etk::isIn(extention, {"cpp", "hpp", "h", "hpp"}) {
+			etk::Path clangFile = etk::path::findInParent(m_fileName, ".clang-format");
+			if (etk::path::isFile(clangFile) == true) {
+				etk::String output = etk::exec("clang-format " + m_fileName.getAbsolute());// + " -assume-filename=" + clangFile.getAbsolute() + "
+				etk::String tmp = m_data.getString();
+				/*
+				APPL_WARNING(" input = '" << tmp << "'");
+				APPL_ERROR(" output = '" << output << "'");
+				*/
+				if (tmp != output) {
+					/*
+					etk::io::File file(m_fileName + "_tmp");
+					file.open(etk::io::OpenMode::Write);
+					file.write(&tmp[0], 1, tmp.size());
+					file.close();
+					*/
+					APPL_ERROR(" ==> data is differents");
+					m_fileIsModify = true;
+					setModification(true);
+					signalFileIsModify();
+					return true;
+				}
+			}
+		}
 		setModification(false);
 		return true;
 	}
